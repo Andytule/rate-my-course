@@ -4,7 +4,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Forums, Login, Navbar, Profile, RateACourse, Surveys, ViewRatings } from './components'
 
 const App = () => {
-  
   return (
     <div>
       <BrowserRouter>

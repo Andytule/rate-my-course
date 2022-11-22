@@ -1,5 +1,4 @@
-import React from 'react'
-
+import React, { useState } from 'react'
 import Button from '@mui/material/Button'
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -17,7 +16,7 @@ import { Link } from "react-router-dom";
 const pages = ["Rate A Course", "View Ratings", "Surveys", "Forums", "Profile"];
 
 const Navbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState(null)
+  const [anchorElNav, setAnchorElNav] = useState(null)
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -79,18 +78,19 @@ const Navbar = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">
-                    <Link
-                      style={{ textDecoration: "none", color: "black" }}
-                      to={`/${page.split(' ').join('')}`}
-                    >
-                      {page}
-                    </Link>
-                  </Typography>
-                </MenuItem>
-              ))}
+              {
+                pages.map((page) => (
+                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center">
+                      <Link
+                        style={{ textDecoration: "none", color: "black" }}
+                        to={`/${page.split(' ').join('')}`}
+                      >
+                        {page}
+                      </Link>
+                    </Typography>
+                  </MenuItem>
+                ))}
             </Menu>
           </Box>
 
