@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Rating from '@mui/material/Rating';
 import Box from '@mui/material/Box';
 import StarIcon from '@mui/icons-material/Star';
@@ -32,12 +32,14 @@ function getLabelText(value) {
     return `${value} Star${value !== 1 ? 's' : ''}, ${labels[value]}`;
 }
 
-const RateACourse = () => {
+const EditACourse = () => {
     const navigate = useNavigate();
+    const location = useLocation()
     const [hover, setHover] = React.useState(-1);
     const [details, setDetails] = useState({ courseName: '', courseCode: '', term: '', level: '', rating: 0, schoolName: '', comments: '', tipsAndTricks: '' })
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState('')
+    const [selected, setSelected] = useState(-1)
 
     useEffect(() => {
         if (!sessionStorage.getItem("id")) {
@@ -45,13 +47,48 @@ const RateACourse = () => {
         }
     })
 
-    const addCourseRating = () => {
+
+    useEffect(() => {
+        if (location.state?.course_name === undefined) {
+            navigate('/ViewRatings')
+        } else {
+            setDetails({
+                courseName: location.state.course_name,
+                courseCode: location.state.course_code,
+                term: location.state.term,
+                level: location.state.level,
+                rating: location.state.rating / 2,
+                schoolName: location.state.school_name,
+                comments: location.state.comments,
+                tipsAndTricks: location.state.tips_and_tricks,
+            })
+            setSelected(parseInt(location.state.id))
+        }
+
+    }, [location, navigate, selected])
+
+    const updateCourseRating = () => {
         if (details.courseName && details.courseCode && details.term && details.level && details.schoolName && details.comments && details.tipsAndTricks) {
-            axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/addReview.php', details)
+            const editingCourse = {
+                ...details,
+                id: selected
+            }
+            axios.delete(`https://king-prawn-app-vjz2f.ondigitalocean.app/deleteRating.php/${selected}`)
                 .then((res) => {
                     if (res.data.status) {
-                        setMessage('Review submitted sucessfully!')
-                        setDetails({ courseName: '', courseCode: '', term: '', level: '', rating: 0, schoolName: '', comments: '', tipsAndTricks: '' })
+                        axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/addReview.php', editingCourse)
+                            .then((res) => {
+                                if (res.data.status) {
+                                    setDetails({ courseName: '', courseCode: '', term: '', level: '', rating: 0, schoolName: '', comments: '', tipsAndTricks: '' })
+                                    navigate('/ViewRatings')
+                                } else {
+                                    setMessage('Failed to delete Rating')
+                                    setOpen(true)
+                                }
+                            })
+                    } else {
+                        setMessage('Failed to delete Rating')
+                        setOpen(true)
                     }
                 })
         } else {
@@ -70,7 +107,7 @@ const RateACourse = () => {
 
     const submitHandler = e => {
         e.preventDefault()
-        addCourseRating()
+        updateCourseRating()
     }
 
     return (
@@ -87,7 +124,7 @@ const RateACourse = () => {
                         fontSize: '1.5rem',
                     }}
                     variant="h5"
-                >Enter Course Feedback</Typography>
+                >Edit Course Feedback</Typography>
             </Grid>
 
             <form onSubmit={submitHandler}>
@@ -172,7 +209,7 @@ const RateACourse = () => {
                 <Grid container justifyContent='center'>
                     <br></br>
                     <Button color='primary' variant='contained' type='submit'>
-                        Submit Feedback
+                        Edit Feedback
                     </Button>
                 </Grid>
                 <Snackbar
@@ -186,4 +223,4 @@ const RateACourse = () => {
     )
 }
 
-export default RateACourse
+export default EditACourse

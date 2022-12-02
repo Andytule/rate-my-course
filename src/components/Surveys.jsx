@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
-import Session from 'react-session-api'
 
 const Surveys = () => {
     const navigate = useNavigate();
-    if (Session.get('id') === undefined) {
-        navigate('/Login')
-    }
+    useEffect(() => {
+        if (!sessionStorage.getItem("id")) {
+            navigate('/')
+        }
+    })
 
     return (
         <div>

@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
-import { Forums, Login, Navbar, Profile, RateACourse, Surveys, ViewRatings } from './components'
+import { Forums, Login, Navbar, Profile, RateACourse, Surveys, ViewRatings, EditACourse } from './components'
 
 const App = () => {
   return (
@@ -15,6 +15,7 @@ const App = () => {
           <Route path='Surveys' element={<Surveys />}/>
           <Route path='Forums' element={<Forums />}/>
           <Route path='Profile' element={<Profile />}/>
+          <Route path='EditACourse' element={<EditACourse />}/>
         </Routes>
       </BrowserRouter>
     </div>

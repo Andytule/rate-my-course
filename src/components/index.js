@@ -5,4 +5,4 @@ export { default as Profile } from './Profile'
 export { default as RateACourse } from './RateACourse'
 export { default as Surveys } from './Surveys'
 export { default as ViewRatings } from './ViewRatings'
-
+export { default as EditACourse } from './EditACourse'

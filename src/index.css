@@ -86,3 +86,22 @@ a {
     width: 200px;
   }
 }
+
+.MuiFormControl-root.css-1869usk-MuiFormControl-root {
+  margin: 16px 0 8px 0;
+}
+
+.MuiBox-root.css-jm3i9k {
+  align-items: flex-end;
+  height: 48px;
+  margin: 8px 0;
+}
+
+.MuiFormControl-root.MuiFormControl-marginNormal.MuiTextField-root.css-1rv3ei8-MuiFormControl-root-MuiTextField-root {
+  margin: 16px 0 8px 0;
+}
+
+legend.MuiTypography-root.MuiTypography-body1.css-ahj2mt-MuiTypography-root {
+  color: rgba(0, 0, 0, 0.6);
+  padding: 0;
+}

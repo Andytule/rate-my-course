@@ -1,42 +1,69 @@
 import React, { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import LoginImage from '../assets/login-image.jpg'
-import Session from 'react-session-api'
 import axios from 'axios'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
+import Snackbar from '@mui/material/Snackbar';
 
 
 const Login = () => {
   const navigate = useNavigate();
   const [details, setDetails] = useState({ email: '', password: '', school: '' })
   const [viewState, setViewState] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
 
   const loginHandler = () => {
-    axios.post('http://localhost:80/api/login.php', details)
-      .then((res) => {
-        Session.set("id", res.data?.user?.id);
-        navigate('/RateACourse')
-      })
+    if (details.email && details.password) {
+      axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/login.php', details)
+        .then((res) => {
+          if (res.data.status) {
+            sessionStorage.setItem("id", res.data?.user?.id)
+            sessionStorage.setItem("role_id", res.data?.user?.role_id)
+            navigate('/RateACourse')
+          } else {
+            setMessage('Invalid Login Credentials')
+            setOpen(true)
+          }
+        })
+    } else {
+      setMessage('Invalid Login Credentials')
+      setOpen(true);
+    }
   }
 
   const createHandler = () => {
-    axios.post('http://localhost:80/api/userExists.php', details)
-      .then((res) => {
-        if (res.data.status !== 1) {
-          axios.post('http://localhost:80/api/create.php', details)
-            .then((res) => {
-              console.log(res)
-            })
-        }
-        else {
-          console.log("Account already exists")
-        }
-      })
+    if (details.email && details.password) {
+      axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/userExists.php', details)
+        .then((res) => {
+          if (res.data.status !== 1) {
+            axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/create.php', details)
+              .then((res) => {
+                console.log(res)
+              })
+          }
+          else {
+            setMessage('User already exists')
+            setOpen(true);
+          }
+        })
+    } else {
+      setMessage('Invalid Login Credentials')
+    }
+    setOpen(true);
   }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   const submitHandler = e => {
     e.preventDefault()
@@ -86,6 +113,12 @@ const Login = () => {
                 }
               </Button>
             </div>
+            <Snackbar
+              open={open}
+              autoHideDuration={6000}
+              onClose={handleClose}
+              message={message}
+            />
           </form>
           <div></div>
         </Grid>
