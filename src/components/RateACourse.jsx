@@ -47,7 +47,11 @@ const RateACourse = () => {
 
     const addCourseRating = () => {
         if (details.courseName && details.courseCode && details.term && details.level && details.schoolName && details.comments && details.tipsAndTricks) {
-            axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/addReview.php', details)
+            const body = {
+                ...details,
+                creator_id: sessionStorage.getItem("id")
+            }
+            axios.post('http://localhost:80/api/addReview.php', body)
                 .then((res) => {
                     if (res.data.status) {
                         setMessage('Review submitted sucessfully!')

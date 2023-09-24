@@ -206,10 +206,10 @@ const ViewRatings = () => {
     }, [])
 
     const getRatings = () => {
-        axios.get('https://king-prawn-app-vjz2f.ondigitalocean.app/getRatings.php')
+        axios.get('http://localhost:80/api/getRatings.php')
             .then((res) => {
                 if (res.data.status === 1) {
-                    setRatingData(res.data.data)
+                    setRatingData(res.data.data.reverse())
                 } else {
                     setMessage('Invalid Login Credentials')
                     setOpen(true);
@@ -253,7 +253,7 @@ const ViewRatings = () => {
     };
 
     const handleEdit = (event) => {
-        if (sessionStorage.getItem("role_id") === 2 || (ratingData.find((rating) => {
+        if (parseInt(sessionStorage.getItem("role_id")) === 2 || (ratingData.find((rating) => {
             return rating.creator_id === parseInt(sessionStorage.getItem("id")) &&
                 rating.id === selected
         }))) {
@@ -270,11 +270,11 @@ const ViewRatings = () => {
     }
 
     const handleDelete = (event) => {
-        if (sessionStorage.getItem("role_id") === 2 || (ratingData.find((rating) => {
+        if (parseInt(sessionStorage.getItem("role_id")) === 2 || (ratingData.find((rating) => {
             return rating.creator_id === parseInt(sessionStorage.getItem("id")) &&
                 rating.id === selected
         }))) {
-            axios.delete(`https://king-prawn-app-vjz2f.ondigitalocean.app/deleteRating.php/${selected}`)
+            axios.delete(`http://localhost:80/api/deleteRating.php/${selected}`)
                 .then((res) => {
                     if (res.data.status) {
                         setMessage('Deleted Rating')

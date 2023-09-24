@@ -19,7 +19,7 @@ const Login = () => {
 
   const loginHandler = () => {
     if (details.email && details.password) {
-      axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/login.php', details)
+      axios.post('http://localhost:80/api/login.php', details)
         .then((res) => {
           if (res.data.status) {
             sessionStorage.setItem("id", res.data?.user?.id)
@@ -38,12 +38,14 @@ const Login = () => {
 
   const createHandler = () => {
     if (details.email && details.password) {
-      axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/userExists.php', details)
+      axios.post('http://localhost:80/api/userExists.php', details)
         .then((res) => {
           if (res.data.status !== 1) {
-            axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/create.php', details)
+            axios.post('http://localhost:80/api/create.php', details)
               .then((res) => {
                 console.log(res)
+                setMessage('User Created')
+                setOpen(true);
               })
           }
           else {

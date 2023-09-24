@@ -73,10 +73,14 @@ const EditACourse = () => {
                 ...details,
                 id: selected
             }
-            axios.delete(`https://king-prawn-app-vjz2f.ondigitalocean.app/deleteRating.php/${selected}`)
+            axios.delete(`http://localhost:80/api/deleteRating.php/${selected}`)
                 .then((res) => {
                     if (res.data.status) {
-                        axios.post('https://king-prawn-app-vjz2f.ondigitalocean.app/addReview.php', editingCourse)
+                        const body = {
+                            ...editingCourse,
+                            creator_id: sessionStorage.getItem("id")
+                        }
+                        axios.post('http://localhost:80/api/addReview.php', body)
                             .then((res) => {
                                 if (res.data.status) {
                                     setDetails({ courseName: '', courseCode: '', term: '', level: '', rating: 0, schoolName: '', comments: '', tipsAndTricks: '' })
