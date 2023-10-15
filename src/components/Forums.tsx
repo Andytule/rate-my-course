@@ -101,7 +101,7 @@ const Forums: React.FC = () => {
         <Typography variant="h4">Forums</Typography>
         <Button
           variant="contained"
-          onClick={() => navigate("/create-thread")}
+          onClick={() => navigate("/CreateThread")}
           sx={{ alignSelf: "flex-end" }}
         >
           Create Thread
