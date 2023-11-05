@@ -1,8 +1,9 @@
 export interface Post {
   id: number;
-  account: string;
+  account: number;
   content: string;
   date: Date;
-  parentId: number | null;
+  parent_id: number | null;
   responses?: Post[];
+  email: string;
 }

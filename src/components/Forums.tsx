@@ -4,101 +4,108 @@ import { Button, List, Container, Box, Typography } from "@mui/material";
 import PostItem from "./PostItem";
 import { Post as PostType } from "../types/types";
 
-const initialPosts: PostType[] = [
-  {
-    id: 1,
-    account: "user1@example.com",
-    content:
-      "This is the first parent post. It contains a long message with detailed information about a topic. This message is used for testing purposes and is quite long.",
-    date: new Date("2023-10-15"),
-    parentId: null,
-  },
-  {
-    id: 2,
-    account: "user2@example.com",
-    content:
-      "Response 1 to the first post. This response provides additional information about the topic discussed in the parent post. It's quite detailed and contains a lot of text for testing purposes.",
-    date: new Date("2023-10-16"),
-    parentId: 1,
-  },
-  {
-    id: 3,
-    account: "user3@example.com",
-    content:
-      "Response 2 to the first post. This response continues the discussion started in the parent post. It also includes detailed information and is quite long for testing purposes.",
-    date: new Date("2023-10-17"),
-    parentId: 1,
-  },
-  {
-    id: 4,
-    account: "user4@example.com",
-    content:
-      "This is the second parent post. It contains a lengthy message with extensive details on a different topic. This message is used for testing purposes and is quite long.",
-    date: new Date("2023-10-18"),
-    parentId: null,
-  },
-  {
-    id: 5,
-    account: "user5@example.com",
-    content:
-      "Response 1 to the second post. This response provides additional information about the topic discussed in the parent post. It's quite detailed and contains a lot of text for testing purposes.",
-    date: new Date("2023-10-19"),
-    parentId: 4,
-  },
-  {
-    id: 6,
-    account: "user6@example.com",
-    content:
-      "Response 2 to the second post. This response continues the discussion started in the parent post. It also includes detailed information and is quite long for testing purposes.",
-    date: new Date("2023-10-20"),
-    parentId: 4,
-  },
-  {
-    id: 7,
-    account: "user7@example.com",
-    content:
-      "This is a standalone post without responses. It's quite lengthy and covers a specific topic in detail. This message is used for testing purposes and is quite long.",
-    date: new Date("2023-10-21"),
-    parentId: null,
-  },
-];
-
 const Forums: React.FC = () => {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<PostType[]>(initialPosts);
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [activeSort, setActiveSort] = useState("newest");
 
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");
+    } else {
+      fetch("http://localhost:80/api/getThreads.php")
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 1) {
+            console.log(data.data);
+            const postHierarchy = buildHierarchy(data.data);
+            const sortedPosts = [...postHierarchy].sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+            setPosts(sortedPosts);
+            setActiveSort("newest");
+          } else {
+            console.error("Error fetching forum posts:", data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching forum posts:", error);
+        });
     }
   }, [navigate]);
 
   const buildHierarchy = (
     data: PostType[],
-    parentId: number | null = null
+    parent_id: number | null = null
   ): PostType[] => {
     return data
-      .filter((post) => post.parentId === parentId)
+      .filter((post) => post.parent_id === parent_id)
       .map((post) => ({
         ...post,
         responses: buildHierarchy(data, post.id),
       }));
   };
 
-  const postHierarchy = buildHierarchy(posts);
+  const sortNewest = () => {
+    const sortedPosts = [...posts].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    setPosts(sortedPosts);
+    setActiveSort("newest");
+  };
+
+  const sortOldest = () => {
+    const sortedPosts = [...posts].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    setPosts(sortedPosts);
+    setActiveSort("oldest");
+  };
+
+  const activeButtonStyle = {
+    backgroundColor: "#1976d2",
+    color: "white",
+  };
+
+  const nonActiveButtonStyle = {
+    backgroundColor: "#e0e0e0",
+    color: "black",
+  };
 
   return (
     <Container>
+      <Box sx={{ textAlign: "center", mt: 2, mb: 2 }}>
+        <Typography variant="h4">Forums</Typography>
+      </Box>
       <Box
         sx={{
-          mt: 4,
-          mb: 2,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
+          justifyContent: "space-between",
           alignItems: "center",
+          mb: 2,
         }}
       >
-        <Typography variant="h4">Forums</Typography>
+        <Box sx={{ flex: 1, display: "flex", gap: 1 }}>
+          <Button
+            variant="contained"
+            sx={
+              activeSort === "newest" ? activeButtonStyle : nonActiveButtonStyle
+            }
+            onClick={() => sortNewest()}
+          >
+            Newest
+          </Button>
+          <Button
+            variant="contained"
+            sx={
+              activeSort === "oldest" ? activeButtonStyle : nonActiveButtonStyle
+            }
+            onClick={() => sortOldest()}
+          >
+            Oldest
+          </Button>
+        </Box>
         <Button
           variant="contained"
           onClick={() => navigate("/CreateThread")}
@@ -109,7 +116,7 @@ const Forums: React.FC = () => {
       </Box>
 
       <List>
-        {postHierarchy.map((post) => (
+        {posts.map((post) => (
           <PostItem key={post.id} post={post} />
         ))}
       </List>

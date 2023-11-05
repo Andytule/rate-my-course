@@ -10,12 +10,14 @@ import MenuIcon from '@mui/icons-material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Container from "@mui/material/Container";
 import RateReviewIcon from "@mui/icons-material/RateReview";
+import { useTheme } from '@mui/material/styles';
 
 import { Link } from "react-router-dom";
 
 const pages = ["Rate A Course", "View Ratings", "Surveys", "Forums", "Profile"];
 
 const Navbar = () => {
+  const theme = useTheme();
   const [anchorElNav, setAnchorElNav] = useState(null)
 
   const handleOpenNavMenu = (event) => {
@@ -28,8 +30,15 @@ const Navbar = () => {
 
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
+    <AppBar position="static" sx={{ margin: 0 }}>
+      <Container maxWidth="xl" sx={{
+        margin: 0,
+        padding: 0,
+        width: "100%",
+        [theme.breakpoints.up('lg')]: {
+          maxWidth: '100%',
+        }
+      }}>
         <Toolbar disableGutters>
           <RateReviewIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography

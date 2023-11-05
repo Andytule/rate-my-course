@@ -9,14 +9,14 @@ const App = () => {
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path='/' element={<Login />}/>
-          <Route path='RateACourse' element={<RateACourse />}/>
-          <Route path='ViewRatings' element={<ViewRatings />}/>
-          <Route path='Surveys' element={<Surveys />}/>
-          <Route path='Forums' element={<Forums />}/>
-          <Route path='Profile' element={<Profile />}/>
-          <Route path='EditACourse' element={<EditACourse />}/>
-          <Route path='CreateThread' element={<CreateThread />}/>
+          <Route path='/' element={<Login />} />
+          <Route path='RateACourse' element={<RateACourse />} />
+          <Route path='ViewRatings' element={<ViewRatings />} />
+          <Route path='Surveys' element={<Surveys />} />
+          <Route path='Forums' element={<Forums />} />
+          <Route path='Profile' element={<Profile />} />
+          <Route path='EditACourse' element={<EditACourse />} />
+          <Route path='CreateThread' element={<CreateThread />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,15 +10,24 @@ import {
   IconButton,
   Grid,
 } from "@mui/material";
-import { Post as PostType } from "../types/types";
 import PersonIcon from "@mui/icons-material/Person";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ReplyIcon from "@mui/icons-material/Reply";
+import { Link, useNavigate } from "react-router-dom";
+import { Post as PostType } from "../types/types";
 
 const PostItem: React.FC<{ post: PostType }> = ({ post }) => {
-  const isParent = post.parentId === null;
-  const marginValue = isParent ? 2 : 1;
+  const [isParent, setIsParent] = useState(post.parent_id === null);
+  const [marginValue, setMarginValue] = useState(isParent ? 2 : 1);
   const paddingValue = "0 24px";
+  const navigate = useNavigate();
+
+  const handleReplyClick = () => {
+    navigate("/CreateThread", { state: { parentId: post.id } });
+  };
+
+  const formattedDate = new Date(post.date);
 
   return (
     <Card
@@ -43,7 +52,7 @@ const PostItem: React.FC<{ post: PostType }> = ({ post }) => {
                   <PersonIcon />
                 </Avatar>
               </ListItemIcon>
-              <Typography variant="h6">{post.account}</Typography>
+              <Typography variant="h6">{post.email}</Typography>
             </Box>
           </Grid>
           <Grid item>
@@ -54,7 +63,7 @@ const PostItem: React.FC<{ post: PostType }> = ({ post }) => {
               }}
               variant="body2"
             >
-              {post.date.toLocaleDateString("en-US", {
+              {formattedDate.toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -79,11 +88,14 @@ const PostItem: React.FC<{ post: PostType }> = ({ post }) => {
         <Box display="flex" justifyContent="space-between">
           <Box></Box>
           <Box>
-            <IconButton>
-              <EditIcon />
+            <IconButton onClick={handleReplyClick}>
+              <ReplyIcon sx={{ color: isParent ? "white" : "inherit" }} />
             </IconButton>
             <IconButton>
-              <DeleteIcon />
+              <EditIcon sx={{ color: isParent ? "white" : "inherit" }} />
+            </IconButton>
+            <IconButton>
+              <DeleteIcon sx={{ color: isParent ? "white" : "inherit" }} />
             </IconButton>
           </Box>
         </Box>
