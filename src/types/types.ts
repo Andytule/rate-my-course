@@ -1,9 +1,9 @@
-export interface Post {
+export interface Thread {
   id: number;
   account: number;
   content: string;
   date: Date;
   parent_id: number | null;
-  responses?: Post[];
+  responses?: Thread[];
   email: string;
 }

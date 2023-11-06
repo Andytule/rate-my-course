@@ -156,7 +156,7 @@ const Surveys: React.FC = () => {
                     style={{
                       border: "1px solid #ccc",
                       borderRadius: "4px",
-                      textAlign: "left", // Set text alignment to left
+                      textAlign: "left",
                     }}
                   >
                     <MenuItem value="">Select</MenuItem>
@@ -228,7 +228,6 @@ const Surveys: React.FC = () => {
           </form>
         </Paper>
       </Box>
-      <ToastContainer />
     </Container>
   );
 };

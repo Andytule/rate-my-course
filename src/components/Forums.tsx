@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, List, Container, Box, Typography } from "@mui/material";
-import PostItem from "./PostItem";
-import { Post as PostType } from "../types/types";
+import ThreadItem from "./ThreadItem";
+import { Thread } from "../types/types";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Forums: React.FC = () => {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<PostType[]>([]);
+  const { pathname } = useLocation();
+  const [threads, setThreads] = useState<Thread[]>([]);
   const [activeSort, setActiveSort] = useState("newest");
 
   useEffect(() => {
@@ -17,50 +20,72 @@ const Forums: React.FC = () => {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === 1) {
-            console.log(data.data);
-            const postHierarchy = buildHierarchy(data.data);
-            const sortedPosts = [...postHierarchy].sort(
+            const threadHierarchy = buildHierarchy(data.data);
+            const sortedThreads = [...threadHierarchy].sort(
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
             );
-            setPosts(sortedPosts);
+            setThreads(sortedThreads);
             setActiveSort("newest");
           } else {
-            console.error("Error fetching forum posts:", data.message);
+            console.error("Error fetching forum threads:", data.message);
           }
         })
         .catch((error) => {
-          console.error("Error fetching forum posts:", error);
+          console.error("Error fetching forum threads:", error);
         });
     }
   }, [navigate]);
 
   const buildHierarchy = (
-    data: PostType[],
+    data: Thread[],
     parent_id: number | null = null
-  ): PostType[] => {
+  ): Thread[] => {
     return data
-      .filter((post) => post.parent_id === parent_id)
-      .map((post) => ({
-        ...post,
-        responses: buildHierarchy(data, post.id),
+      .filter((thread) => thread.parent_id === parent_id)
+      .map((thread) => ({
+        ...thread,
+        responses: buildHierarchy(data, thread.id),
       }));
   };
 
   const sortNewest = () => {
-    const sortedPosts = [...posts].sort(
+    const sortedThreads = [...threads].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-    setPosts(sortedPosts);
+    setThreads(sortedThreads);
     setActiveSort("newest");
   };
 
   const sortOldest = () => {
-    const sortedPosts = [...posts].sort(
+    const sortedThreads = [...threads].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-    setPosts(sortedPosts);
+    setThreads(sortedThreads);
     setActiveSort("oldest");
   };
+
+  const showToast = (message: string, type: "success" | "error") => {
+    toast(message, {
+      position: "top-right",
+      autoClose: 3000,
+      type,
+    });
+  };
+
+  const handleDeleteThread = (deletedThreadId: number) => {
+    const updatedThreads = threads.filter(
+      (thread) => thread.id !== deletedThreadId
+    );
+    setThreads(updatedThreads);
+  };
+
+  useEffect(() => {
+    if (pathname === "/forums/thread-created") {
+      showToast("Thread created successfully!", "success");
+    } else if (pathname === "/forums/thread-updated") {
+      showToast("Thread updated successfully!", "success");
+    }
+  }, [pathname]);
 
   const activeButtonStyle = {
     backgroundColor: "#1976d2",
@@ -116,10 +141,15 @@ const Forums: React.FC = () => {
       </Box>
 
       <List>
-        {posts.map((post) => (
-          <PostItem key={post.id} post={post} />
+        {threads.map((thread) => (
+          <ThreadItem
+            key={thread.id}
+            thread={thread}
+            onDelete={handleDeleteThread}
+          />
         ))}
       </List>
+      <ToastContainer />
     </Container>
   );
 };

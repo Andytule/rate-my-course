@@ -1,12 +1,14 @@
-import React from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-
-import { Forums, Login, Navbar, Profile, RateACourse, Surveys, ViewRatings, EditACourse, CreateThread } from './components'
+import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Forums, Login, Navbar, Profile, RateACourse, Surveys, ViewRatings, EditACourse, CreateThread } from './components';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
     <div>
       <BrowserRouter>
+        <ToastContainer />
         <Navbar />
         <Routes>
           <Route path='/' element={<Login />} />
@@ -20,7 +22,7 @@ const App = () => {
         </Routes>
       </BrowserRouter>
     </div>
-  )
+  );
 }
 
 export default App;
