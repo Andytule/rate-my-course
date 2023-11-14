@@ -24,6 +24,7 @@ const Login = () => {
           if (res.data.status) {
             sessionStorage.setItem("id", res.data?.user?.id)
             sessionStorage.setItem("role_id", res.data?.user?.role_id)
+            sessionStorage.setItem('email', res.data?.user?.email);
             navigate('/RateACourse')
           } else {
             setMessage('Invalid Login Credentials')

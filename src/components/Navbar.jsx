@@ -87,19 +87,18 @@ const Navbar = () => {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {
-                pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">
-                      <Link
-                        style={{ textDecoration: "none", color: "black" }}
-                        to={`/${page.split(' ').join('')}`}
-                      >
-                        {page}
-                      </Link>
-                    </Typography>
-                  </MenuItem>
-                ))}
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">
+                    <Link
+                      style={{ textDecoration: "none", color: "black" }}
+                      to={`/${page.replace(/\s+/g, "").toLowerCase()}`}
+                    >
+                      {page}
+                    </Link>
+                  </Typography>
+                </MenuItem>
+              ))}
             </Menu>
           </Box>
 
