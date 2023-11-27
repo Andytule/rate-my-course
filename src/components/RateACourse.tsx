@@ -1,5 +1,5 @@
-import React, { useEffect, useState, SyntheticEvent } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Box from "@mui/material/Box";
 import StarIcon from "@mui/icons-material/Star";
@@ -12,25 +12,11 @@ import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import { SnackbarCloseReason } from "@mui/material/Snackbar";
+import { toast } from "react-toastify";
 import { Container } from "@mui/material";
 import { Paper } from "@mui/material";
 
-interface Details {
-  courseName: string;
-  courseCode: string;
-  term: string;
-  level: string;
-  rating: number;
-  schoolName: string;
-  comments: string;
-  tipsAndTricks: string;
-}
-
-type RatingValue = 0.5 | 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 4.5 | 5;
-
-const labels: Record<RatingValue, string> = {
+const labels = {
   0.5: "Useless",
   1: "Useless+",
   1.5: "Poor",
@@ -43,27 +29,19 @@ const labels: Record<RatingValue, string> = {
   5: "Excellent+",
 };
 
-function getLabelText(value: RatingValue) {
-  return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
-}
-
-const EditACourse: React.FC = () => {
+const RateACourse = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [hover, setHover] = useState<number>(-1);
-  const [details, setDetails] = useState<Details>({
+  const [hover, setHover] = React.useState(-1);
+  const [details, setDetails] = useState({
     courseName: "",
     courseCode: "",
-    term: "Fall 2022",
-    level: "College",
-    rating: 0,
+    term: "",
+    level: "",
+    rating: null as number | null,
     schoolName: "",
     comments: "",
     tipsAndTricks: "",
   });
-  const [open, setOpen] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
-  const [selected, setSelected] = useState<number>(-1);
 
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
@@ -71,99 +49,75 @@ const EditACourse: React.FC = () => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    if (location.state?.course_name === undefined) {
-      navigate("/ViewRatings");
-    } else {
-      setDetails({
-        courseName: location.state.course_name,
-        courseCode: location.state.course_code,
-        term: location.state.term,
-        level: location.state.level,
-        rating: location.state.rating / 2,
-        schoolName: location.state.school_name,
-        comments: location.state.comments,
-        tipsAndTricks: location.state.tips_and_tricks,
-      });
-      setSelected(parseInt(location.state.id));
-    }
-  }, [location, navigate, selected]);
-
-  const updateCourseRating = () => {
-    if (
+  const isFormValid = () => {
+    return (
       details.courseName &&
       details.courseCode &&
       details.term &&
       details.level &&
+      details.rating !== null &&
       details.schoolName &&
       details.comments &&
       details.tipsAndTricks
-    ) {
-      const editingCourse = {
-        ...details,
-        id: selected,
-      };
-      axios
-        .delete(`http://localhost:80/api/deleteRating.php/${selected}`)
-        .then((res) => {
-          if (res.data.status) {
-            const body = {
-              ...editingCourse,
-              creator_id: sessionStorage.getItem("id"),
-            };
-            axios
-              .post("http://localhost:80/api/addReview.php", body)
-              .then((res) => {
-                if (res.data.status) {
-                  setDetails({
-                    courseName: "",
-                    courseCode: "",
-                    term: "Fall 2022",
-                    level: "College",
-                    rating: 0,
-                    schoolName: "",
-                    comments: "",
-                    tipsAndTricks: "",
-                  });
-                  navigate("/ViewRatings");
-                } else {
-                  setMessage("Failed to delete Rating");
-                  setOpen(true);
-                }
-              });
-          } else {
-            setMessage("Failed to delete Rating");
-            setOpen(true);
-          }
-        });
-    } else {
-      setMessage("Invalid Feedback input");
-    }
-    setOpen(true);
+    );
   };
 
-  const handleCloseSnackbar = (
-    event: SyntheticEvent<Element, Event>,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") {
-      return;
+  const addCourseRating = () => {
+    if (isFormValid()) {
+      const body = {
+        ...details,
+        creator_id: sessionStorage.getItem("id"),
+      };
+      axios.post("http://localhost:80/api/addReview.php", body).then((res) => {
+        if (res.data.status) {
+          toast.success("Review submitted successfully!", {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+          setDetails({
+            courseName: "",
+            courseCode: "",
+            term: "",
+            level: "",
+            rating: null,
+            schoolName: "",
+            comments: "",
+            tipsAndTricks: "",
+          });
+        }
+      });
+    } else {
+      toast.error("Please fill in all required fields", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
     }
-
-    setOpen(false);
   };
 
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
-    updateCourseRating();
+    addCourseRating();
   };
 
   return (
-    <Container maxWidth="lg">
+    <Container>
       <Box mt={2} textAlign="center">
-        <Typography variant="h4" gutterBottom>
-          Edit A Course
-        </Typography>
+        <Grid container justifyContent="center">
+          <Typography
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              color: "inherit",
+              textDecoration: "none",
+              fontFamily: "Roboto",
+              fontWeight: 400,
+              fontSize: "1.5rem",
+            }}
+            variant="h5"
+          >
+            Enter Course Feedback
+          </Typography>
+        </Grid>
 
         <Paper elevation={3} style={{ padding: "20px", marginBottom: "20px" }}>
           <form onSubmit={submitHandler}>
@@ -199,44 +153,51 @@ const EditACourse: React.FC = () => {
                   }
                 />
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
-                  <InputLabel id="demo-simple-select-outlined-label">
+                  <InputLabel id="demo-simple-select-standard-label">
                     Term
                   </InputLabel>
                   <Select
-                    labelId="demo-simple-select-outlined-label"
-                    id="demo-simple-select-outlined"
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
                     value={details.term}
                     onChange={(e) =>
                       setDetails({ ...details, term: e.target.value })
                     }
                     label="Term"
-                    sx={{ textAlign: "left" }}
                   >
-                    <MenuItem value="Fall 2022">Fall 2022</MenuItem>
-                    <MenuItem value="Winter 2023">Winter 2023</MenuItem>
-                    <MenuItem value="Spring 2023">Spring 2023</MenuItem>
-                    <MenuItem value="Summer 2023">Summer 2023</MenuItem>
-                    {/* Add more terms as needed */}
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={"Fall 2023"}>Fall 2023</MenuItem>
+                    <MenuItem value={"Winter 2024"}>Winter 2024</MenuItem>
+                    <MenuItem value={"Spring 2024"}>Spring 2024</MenuItem>
+                    <MenuItem value={"Summer 2024"}>Summer 2024</MenuItem>
+                    <MenuItem value={"Fall 2024"}>Fall 2024</MenuItem>
+                    <MenuItem value={"Winter 2025"}>Winter 2025</MenuItem>
+                    <MenuItem value={"Spring 2025"}>Spring 2025</MenuItem>
+                    <MenuItem value={"Summer 2025"}>Summer 2025</MenuItem>
+                    <MenuItem value={"Fall 2025"}>Fall 2025</MenuItem>
                   </Select>
                 </FormControl>
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
-                  <InputLabel id="demo-simple-select-outlined-label">
+                  <InputLabel id="demo-simple-select-standard-label">
                     Level
                   </InputLabel>
                   <Select
-                    labelId="demo-simple-select-outlined-label"
-                    id="demo-simple-select-outlined"
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
                     value={details.level}
                     onChange={(e) =>
                       setDetails({ ...details, level: e.target.value })
                     }
                     label="Level"
-                    sx={{ textAlign: "left" }}
                   >
-                    <MenuItem value="College">College</MenuItem>
-                    <MenuItem value="University">University</MenuItem>
-                    <MenuItem value="Other">Other</MenuItem>
-                    {/* Add more level options as needed */}
+                    <MenuItem value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={"College"}>College</MenuItem>
+                    <MenuItem value={"University"}>University</MenuItem>
+                    <MenuItem value={"Other"}>Other</MenuItem>
                   </Select>
                 </FormControl>
                 <Box
@@ -252,13 +213,15 @@ const EditACourse: React.FC = () => {
                     value={details.rating}
                     precision={0.5}
                     getLabelText={(value: number) =>
-                      getLabelText(value as RatingValue)
+                      `${value} Star${value !== 1 ? "s" : ""}, ${
+                        labels[value as keyof typeof labels]
+                      }`
                     }
                     onChange={(e, newValue) =>
-                      setDetails({ ...details, rating: newValue ?? 0 })
+                      setDetails({ ...details, rating: newValue })
                     }
                     onChangeActive={(event, newHover) => {
-                      setHover(newHover);
+                      setHover(newHover as number);
                     }}
                     emptyIcon={
                       <StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />
@@ -268,7 +231,9 @@ const EditACourse: React.FC = () => {
                     <Box sx={{ ml: 2 }}>
                       {
                         labels[
-                          (hover !== -1 ? hover : details.rating) as RatingValue
+                          hover !== -1
+                            ? (hover as keyof typeof labels)
+                            : (details.rating as keyof typeof labels)
                         ]
                       }
                     </Box>
@@ -320,20 +285,9 @@ const EditACourse: React.FC = () => {
             <Grid container justifyContent="center">
               <br></br>
               <Button color="primary" variant="contained" type="submit">
-                Edit Feedback
+                Submit Feedback
               </Button>
             </Grid>
-            <Snackbar
-              open={open}
-              autoHideDuration={6000}
-              onClose={(event, reason) =>
-                handleCloseSnackbar(
-                  event as React.SyntheticEvent<Element, Event>,
-                  reason as SnackbarCloseReason
-                )
-              }
-              message={message}
-            />
           </form>
         </Paper>
       </Box>
@@ -341,4 +295,4 @@ const EditACourse: React.FC = () => {
   );
 };
 
-export default EditACourse;
+export default RateACourse;

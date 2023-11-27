@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
-import {
-  Avatar,
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-  Button,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-} from "@mui/material";
+import { Grid, Button } from "@mui/material";
+import axios from "axios";
+import UserProfile from "./UserProfile";
+import Users from "./Users";
+import SurveyResponses from "./SurveyResponses";
 import { useNavigate } from "react-router-dom";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import EmailIcon from "@mui/icons-material/Email";
-import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 
 enum Role {
-  Admin = 1,
-  UserProfile = 2,
+  UserProfile = 1,
+  Admin = 2,
+}
+
+interface SurveyResponse {
+  id: number;
+  satisfaction: number;
+  improvements: string;
+  comments: string;
+  anonymous: number;
+  user_id: string;
 }
 
 const Profile: React.FC = () => {
@@ -26,6 +25,22 @@ const Profile: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
   const [id, setId] = useState<string | null>(null);
   const [role, setRole] = useState<Role>(Role.UserProfile);
+  const [surveyData, setSurveyData] = useState<SurveyResponse[]>([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:80/api/getSurveys.php")
+      .then((response) => {
+        if (response.data.status === 1) {
+          setSurveyData(response.data.data);
+        } else {
+          console.error("Failed to retrieve survey data.");
+        }
+      })
+      .catch((error) => {
+        console.error("Axios error:", error);
+      });
+  }, []);
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem("email");
@@ -50,45 +65,28 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <Card sx={{ maxWidth: 600, margin: "auto", marginTop: 20, padding: 2 }}>
-      <CardContent sx={{ textAlign: "left", padding: 0 }}>
-        <Grid container justifyContent="center" alignItems="center" spacing={2}>
-          <Grid item>
-            <AccountCircleIcon
-              sx={{
-                fontSize: 64,
-                color: role === Role.Admin ? "primary.main" : "primary.main",
-              }}
-            />
+    <Grid container alignItems="center" sx={{ flexDirection: "column" }}>
+      <Grid item xs={12} md={6}>
+        <UserProfile email={email} role={role} logoutHandler={logoutHandler} />
+      </Grid>
+
+      {role === Role.Admin && (
+        <Grid
+          item
+          xs={12}
+          md={6}
+          container
+          sx={{ flexDirection: "row", maxWidth: "90% !important" }}
+        >
+          <Grid item xs={6} sx={{ padding: "10px" }}>
+            <SurveyResponses surveyData={surveyData} />
+          </Grid>
+          <Grid item xs={6} sx={{ padding: "10px" }}>
+            <Users />
           </Grid>
         </Grid>
-
-        <Grid container justifyContent="flex-start">
-          <List>
-            <ListItem>
-              <ListItemAvatar>
-                <EmailIcon />
-              </ListItemAvatar>
-              <ListItemText primary={email} />
-            </ListItem>
-            <ListItem>
-              <ListItemAvatar>
-                <SupervisedUserCircleIcon />
-              </ListItemAvatar>
-              <ListItemText
-                primary={role === Role.Admin ? "Admin" : "User Profile"}
-              />
-            </ListItem>
-          </List>
-        </Grid>
-
-        <Grid container justifyContent="flex-end">
-          <Button color="primary" variant="contained" onClick={logoutHandler}>
-            Logout
-          </Button>
-        </Grid>
-      </CardContent>
-    </Card>
+      )}
+    </Grid>
   );
 };
 
