@@ -8,6 +8,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
+import apiBaseUrl from "apiConfig";
 
 /**
  * Represents the details required for user authentication or registration.
@@ -35,7 +36,7 @@ const Login: React.FC = () => {
    */
   const loginHandler = () => {
     if (details.email && details.password) {
-      axios.post("http://localhost:80/api/login.php", details).then((res) => {
+      axios.post(`${apiBaseUrl}/login.php`, details).then((res) => {
         if (res.data.status) {
           sessionStorage.setItem("id", res.data?.user?.id);
           sessionStorage.setItem("role_id", res.data?.user?.role_id);
@@ -56,19 +57,15 @@ const Login: React.FC = () => {
    */
   const createHandler = () => {
     if (details.email && details.password) {
-      axios
-        .post("http://localhost:80/api/userExists.php", details)
-        .then((res) => {
-          if (res.data.status !== 1) {
-            axios
-              .post("http://localhost:80/api/create.php", details)
-              .then(() => {
-                notifySuccess("User Created");
-              });
-          } else {
-            notifyError("User already exists");
-          }
-        });
+      axios.post(`${apiBaseUrl}/userExists.php`, details).then((res) => {
+        if (res.data.status !== 1) {
+          axios.post(`${apiBaseUrl}/create.php`, details).then(() => {
+            notifySuccess("User Created");
+          });
+        } else {
+          notifyError("User already exists");
+        }
+      });
     } else {
       notifyError("Invalid Login Credentials");
     }

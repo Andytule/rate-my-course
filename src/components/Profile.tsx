@@ -5,6 +5,7 @@ import UserProfile from "./UserProfile";
 import Users from "./Users";
 import SurveyResponses from "./SurveyResponses";
 import { useNavigate } from "react-router-dom";
+import apiBaseUrl from "apiConfig";
 
 // Enum defining user roles
 enum Role {
@@ -35,7 +36,7 @@ const Profile: React.FC = () => {
   // Fetch survey data from the server on component mount
   useEffect(() => {
     axios
-      .get("http://localhost:80/api/getSurveys.php")
+      .get(`${apiBaseUrl}/getSurveys.php`)
       .then((response) => {
         if (response.data.status === 1) {
           setSurveyData(response.data.data);

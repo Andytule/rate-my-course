@@ -25,6 +25,7 @@ import TextField from '@mui/material/TextField';
 import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
 import { toast } from "react-toastify";
+import apiBaseUrl from "apiConfig";
 
 /**
  * Comparator function for sorting an array of objects in descending order.
@@ -252,7 +253,7 @@ const ViewRatings = () => {
      * Fetches course ratings data from the API and sets the state accordingly.
      */
     const getRatings = () => {
-        axios.get('http://localhost:80/api/getRatings.php').then((res) => {
+        axios.get(`${apiBaseUrl}/getRatings.php`).then((res) => {
             if (res.data.status === 1) {
                 setRatingData(res.data.data.reverse());
                 setFilteredData(res.data.data.reverse());
@@ -369,7 +370,7 @@ const ViewRatings = () => {
                         rating.id === selected
                 ))
         ) {
-            axios.delete(`http://localhost:80/api/deleteRating.php/${selected}`).then((res) => {
+            axios.delete(`${apiBaseUrl}/deleteRating.php/${selected}`).then((res) => {
                 if (res.data.status) {
                     // Display success toast
                     toast.success('Deleted Rating', {

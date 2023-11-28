@@ -15,6 +15,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Container } from "@mui/material";
 import { Paper } from "@mui/material";
+import apiBaseUrl from "apiConfig";
 
 /**
  * Labels for the different rating values.
@@ -112,7 +113,7 @@ const RateACourse = () => {
         ...details,
         creator_id: sessionStorage.getItem("id"),
       };
-      axios.post("http://localhost:80/api/addReview.php", body).then((res) => {
+      axios.post(`${apiBaseUrl}/addReview.php`, body).then((res) => {
         if (res.data.status) {
           toast.success("Review submitted successfully!", {
             position: toast.POSITION.TOP_RIGHT,
@@ -224,6 +225,13 @@ const RateACourse = () => {
                     <MenuItem value="">
                       <em>None</em>
                     </MenuItem>
+                    <MenuItem value={"Winter 2022"}>Winter 2022</MenuItem>
+                    <MenuItem value={"Spring 2022"}>Spring 2022</MenuItem>
+                    <MenuItem value={"Summer 2022"}>Summer 2022</MenuItem>
+                    <MenuItem value={"Fall 2022"}>Fall 2022</MenuItem>
+                    <MenuItem value={"Winter 2023"}>Winter 2023</MenuItem>
+                    <MenuItem value={"Spring 2023"}>Spring 2023</MenuItem>
+                    <MenuItem value={"Summer 2023"}>Summer 2023</MenuItem>
                     <MenuItem value={"Fall 2023"}>Fall 2023</MenuItem>
                     <MenuItem value={"Winter 2024"}>Winter 2024</MenuItem>
                     <MenuItem value={"Spring 2024"}>Spring 2024</MenuItem>

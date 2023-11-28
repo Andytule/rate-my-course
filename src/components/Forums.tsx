@@ -5,6 +5,7 @@ import ThreadItem from "./ThreadItem";
 import { Thread } from "../types/types";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import apiBaseUrl from "apiConfig";
 
 /**
  * Forums component for displaying forum threads and managing thread sorting.
@@ -23,7 +24,7 @@ const Forums: React.FC = () => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");
     } else {
-      fetch("http://localhost:80/api/getThreads.php")
+      fetch(`${apiBaseUrl}/getThreads.php`)
         .then((response) => response.json())
         .then((data) => {
           if (data.status === 1) {

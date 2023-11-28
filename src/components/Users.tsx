@@ -10,6 +10,7 @@ import {
   Paper,
   TablePagination,
 } from "@mui/material";
+import apiBaseUrl from "apiConfig";
 
 interface User {
   id: number;
@@ -33,7 +34,7 @@ const Users: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:80/api/getUsers.php");
+        const response = await fetch(`${apiBaseUrl}/getUsers.php`);
         const data = await response.json();
 
         if (data.status === 1) {

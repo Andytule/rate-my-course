@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { Thread } from "../types/types";
 import axios from "axios";
 import { toast } from "react-toastify";
+import apiBaseUrl from "apiConfig";
 
 /**
  * Represents a single thread item.
@@ -76,12 +77,9 @@ const ThreadItem: React.FC<{
       }
 
       try {
-        const response = await axios.post(
-          "http://localhost:80/api/deleteThread.php",
-          {
-            id: threadToDelete.id,
-          }
-        );
+        const response = await axios.post(`${apiBaseUrl}/deleteThread.php`, {
+          id: threadToDelete.id,
+        });
 
         if (response.data && response.data.status) {
           if (onDelete) {

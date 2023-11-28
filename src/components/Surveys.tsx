@@ -19,6 +19,7 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import apiBaseUrl from "apiConfig";
 
 // Interface for form data
 interface FormData {
@@ -103,7 +104,7 @@ const Surveys: React.FC = () => {
     try {
       // Send a POST request to the server to add the survey response
       const response = await axios.post(
-        "http://localhost:80/api/addSurveyResponse.php",
+        `${apiBaseUrl}/addSurveyResponse.php`,
         body
       );
 

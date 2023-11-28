@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
+import apiBaseUrl from "apiConfig";
 
 /**
  * CreateThread component for creating or editing forum threads.
@@ -96,7 +97,7 @@ const CreateThread: React.FC = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:80/api/createThread.php",
+          `${apiBaseUrl}/createThread.php`,
           body
         );
 
@@ -126,10 +127,7 @@ const CreateThread: React.FC = () => {
       };
 
       try {
-        const response = await axios.post(
-          "http://localhost:80/api/editThread.php",
-          body
-        );
+        const response = await axios.post(`${apiBaseUrl}/editThread.php`, body);
 
         if (response.data && response.data.status) {
           handleEditSuccessToast();
@@ -162,7 +160,7 @@ const CreateThread: React.FC = () => {
       setIsEditMode(true);
 
       axios
-        .get(`http://localhost:80/api/getThread.php?id=${state.threadId}`)
+        .get(`${apiBaseUrl}/getThread.php?id=${state.threadId}`)
         .then((response) => {
           setEditContent(response.data.data.content);
         })

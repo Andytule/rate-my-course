@@ -15,6 +15,7 @@ import axios from "axios";
 import { Container } from "@mui/material";
 import { Paper } from "@mui/material";
 import { toast } from "react-toastify";
+import apiBaseUrl from "apiConfig";
 
 /**
  * Represents the details of a course, including various attributes.
@@ -127,32 +128,39 @@ const EditACourse: React.FC = () => {
         ...details,
         id: selected,
       };
+
       const body = {
         ...editingCourse,
         creator_id: sessionStorage.getItem("id"),
       };
 
-      axios.post("http://localhost:80/api/addReview.php", body).then((res) => {
-        if (res.data.status) {
-          setDetails({
-            courseName: "",
-            courseCode: "",
-            term: "Fall 2022",
-            level: "College",
-            rating: 0,
-            schoolName: "",
-            comments: "",
-            tipsAndTricks: "",
-          });
-          navigate("/ViewRatings");
-          toast.success("Feedback edited successfully!", {
-            position: toast.POSITION.TOP_RIGHT,
-            autoClose: 3000,
-          });
-        } else {
-          toast.error("Failed to edit Rating");
-        }
-      });
+      axios
+        .post(`${apiBaseUrl}/updateRating.php`, body)
+        .then((res) => {
+          if (res.data.status) {
+            setDetails({
+              courseName: "",
+              courseCode: "",
+              term: "Fall 2022",
+              level: "College",
+              rating: 0,
+              schoolName: "",
+              comments: "",
+              tipsAndTricks: "",
+            });
+            navigate("/ViewRatings");
+            toast.success("Feedback edited successfully!", {
+              position: toast.POSITION.TOP_RIGHT,
+              autoClose: 3000,
+            });
+          } else {
+            toast.error("Failed to edit Rating");
+          }
+        })
+        .catch((error) => {
+          console.error("Error editing feedback:", error);
+          toast.error("An error occurred while editing feedback");
+        });
     } else {
       toast.error("Invalid Feedback input");
     }
@@ -222,6 +230,13 @@ const EditACourse: React.FC = () => {
                     label="Term"
                     sx={{ textAlign: "left" }}
                   >
+                    <MenuItem value={"Winter 2022"}>Winter 2022</MenuItem>
+                    <MenuItem value={"Spring 2022"}>Spring 2022</MenuItem>
+                    <MenuItem value={"Summer 2022"}>Summer 2022</MenuItem>
+                    <MenuItem value={"Fall 2022"}>Fall 2022</MenuItem>
+                    <MenuItem value={"Winter 2023"}>Winter 2023</MenuItem>
+                    <MenuItem value={"Spring 2023"}>Spring 2023</MenuItem>
+                    <MenuItem value={"Summer 2023"}>Summer 2023</MenuItem>
                     <MenuItem value={"Fall 2023"}>Fall 2023</MenuItem>
                     <MenuItem value={"Winter 2024"}>Winter 2024</MenuItem>
                     <MenuItem value={"Spring 2024"}>Spring 2024</MenuItem>
