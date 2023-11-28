@@ -1,6 +1,6 @@
 export { default as Forums } from './Forums.tsx'
-export { default as Login } from './Login'
-export { default as Navbar } from './Navbar'
+export { default as Login } from './Login.tsx'
+export { default as Navbar } from './Navbar.tsx'
 export { default as Profile } from './Profile.tsx'
 export { default as RateACourse } from './RateACourse.tsx'
 export { default as Surveys } from './Surveys.tsx'

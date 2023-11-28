@@ -12,11 +12,13 @@ import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import axios from "axios";
-import Snackbar from "@mui/material/Snackbar";
-import { SnackbarCloseReason } from "@mui/material/Snackbar";
 import { Container } from "@mui/material";
 import { Paper } from "@mui/material";
+import { toast } from "react-toastify";
 
+/**
+ * Represents the details of a course, including various attributes.
+ */
 interface Details {
   courseName: string;
   courseCode: string;
@@ -28,8 +30,14 @@ interface Details {
   tipsAndTricks: string;
 }
 
+/**
+ * Represents possible values for the course rating.
+ */
 type RatingValue = 0.5 | 1 | 1.5 | 2 | 2.5 | 3 | 3.5 | 4 | 4.5 | 5;
 
+/**
+ * Labels for different rating values.
+ */
 const labels: Record<RatingValue, string> = {
   0.5: "Useless",
   1: "Useless+",
@@ -43,10 +51,18 @@ const labels: Record<RatingValue, string> = {
   5: "Excellent+",
 };
 
+/**
+ * Returns the label text for a given rating value.
+ * @param value - The rating value.
+ * @returns The label text.
+ */
 function getLabelText(value: RatingValue) {
   return `${value} Star${value !== 1 ? "s" : ""}, ${labels[value]}`;
 }
 
+/**
+ * EditACourse component for editing course feedback.
+ */
 const EditACourse: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,16 +77,20 @@ const EditACourse: React.FC = () => {
     comments: "",
     tipsAndTricks: "",
   });
-  const [open, setOpen] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
   const [selected, setSelected] = useState<number>(-1);
 
+  /**
+   * Checks if the user is authenticated, otherwise redirects to the login page.
+   */
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");
     }
   }, [navigate]);
 
+  /**
+   * Populates the form with existing course details when the component mounts.
+   */
   useEffect(() => {
     if (location.state?.course_name === undefined) {
       navigate("/ViewRatings");
@@ -89,6 +109,10 @@ const EditACourse: React.FC = () => {
     }
   }, [location, navigate, selected]);
 
+  /**
+   * Updates the course rating by making a request to the server.
+   * Shows success or error toast messages accordingly.
+   */
   const updateCourseRating = () => {
     if (
       details.courseName &&
@@ -103,56 +127,42 @@ const EditACourse: React.FC = () => {
         ...details,
         id: selected,
       };
-      axios
-        .delete(`http://localhost:80/api/deleteRating.php/${selected}`)
-        .then((res) => {
-          if (res.data.status) {
-            const body = {
-              ...editingCourse,
-              creator_id: sessionStorage.getItem("id"),
-            };
-            axios
-              .post("http://localhost:80/api/addReview.php", body)
-              .then((res) => {
-                if (res.data.status) {
-                  setDetails({
-                    courseName: "",
-                    courseCode: "",
-                    term: "Fall 2022",
-                    level: "College",
-                    rating: 0,
-                    schoolName: "",
-                    comments: "",
-                    tipsAndTricks: "",
-                  });
-                  navigate("/ViewRatings");
-                } else {
-                  setMessage("Failed to delete Rating");
-                  setOpen(true);
-                }
-              });
-          } else {
-            setMessage("Failed to delete Rating");
-            setOpen(true);
-          }
-        });
+      const body = {
+        ...editingCourse,
+        creator_id: sessionStorage.getItem("id"),
+      };
+
+      axios.post("http://localhost:80/api/addReview.php", body).then((res) => {
+        if (res.data.status) {
+          setDetails({
+            courseName: "",
+            courseCode: "",
+            term: "Fall 2022",
+            level: "College",
+            rating: 0,
+            schoolName: "",
+            comments: "",
+            tipsAndTricks: "",
+          });
+          navigate("/ViewRatings");
+          toast.success("Feedback edited successfully!", {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+        } else {
+          toast.error("Failed to edit Rating");
+        }
+      });
     } else {
-      setMessage("Invalid Feedback input");
+      toast.error("Invalid Feedback input");
     }
-    setOpen(true);
   };
 
-  const handleCloseSnackbar = (
-    event: SyntheticEvent<Element, Event>,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
-
+  /**
+   * Handles the form submission by preventing the default behavior and calling
+   * the updateCourseRating function.
+   * @param e - The form submission event.
+   */
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
     updateCourseRating();
@@ -212,11 +222,15 @@ const EditACourse: React.FC = () => {
                     label="Term"
                     sx={{ textAlign: "left" }}
                   >
-                    <MenuItem value="Fall 2022">Fall 2022</MenuItem>
-                    <MenuItem value="Winter 2023">Winter 2023</MenuItem>
-                    <MenuItem value="Spring 2023">Spring 2023</MenuItem>
-                    <MenuItem value="Summer 2023">Summer 2023</MenuItem>
-                    {/* Add more terms as needed */}
+                    <MenuItem value={"Fall 2023"}>Fall 2023</MenuItem>
+                    <MenuItem value={"Winter 2024"}>Winter 2024</MenuItem>
+                    <MenuItem value={"Spring 2024"}>Spring 2024</MenuItem>
+                    <MenuItem value={"Summer 2024"}>Summer 2024</MenuItem>
+                    <MenuItem value={"Fall 2024"}>Fall 2024</MenuItem>
+                    <MenuItem value={"Winter 2025"}>Winter 2025</MenuItem>
+                    <MenuItem value={"Spring 2025"}>Spring 2025</MenuItem>
+                    <MenuItem value={"Summer 2025"}>Summer 2025</MenuItem>
+                    <MenuItem value={"Fall 2025"}>Fall 2025</MenuItem>
                   </Select>
                 </FormControl>
                 <FormControl variant="outlined" sx={{ m: 1, minWidth: 120 }}>
@@ -236,7 +250,6 @@ const EditACourse: React.FC = () => {
                     <MenuItem value="College">College</MenuItem>
                     <MenuItem value="University">University</MenuItem>
                     <MenuItem value="Other">Other</MenuItem>
-                    {/* Add more level options as needed */}
                   </Select>
                 </FormControl>
                 <Box
@@ -323,17 +336,6 @@ const EditACourse: React.FC = () => {
                 Edit Feedback
               </Button>
             </Grid>
-            <Snackbar
-              open={open}
-              autoHideDuration={6000}
-              onClose={(event, reason) =>
-                handleCloseSnackbar(
-                  event as React.SyntheticEvent<Element, Event>,
-                  reason as SnackbarCloseReason
-                )
-              }
-              message={message}
-            />
           </form>
         </Paper>
       </Box>

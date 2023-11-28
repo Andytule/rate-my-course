@@ -18,6 +18,17 @@ import { Thread } from "../types/types";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+/**
+ * Represents a single thread item.
+ *
+ * @component
+ *
+ * @param {Object} props - The component's properties.
+ * @param {Thread} props.thread - The thread to be displayed.
+ * @param {Function} [props.onDelete] - Callback function for deleting a thread.
+ *
+ * @returns {JSX.Element} The rendered JSX element for the ThreadItem.
+ */
 const ThreadItem: React.FC<{
   thread: Thread;
   onDelete?: (deletedThreadId: number) => void;
@@ -29,10 +40,16 @@ const ThreadItem: React.FC<{
   const currentUserId = sessionStorage.getItem("id");
   const isUserLoggedIn = currentUserId !== null;
 
+  /**
+   * Handles the click event for replying to the thread.
+   */
   const handleReplyClick = () => {
     navigate("/CreateThread", { state: { parentId: thread.id } });
   };
 
+  /**
+   * Handles the click event for editing the thread.
+   */
   const handleEditClick = () => {
     if (
       isUserLoggedIn &&
@@ -43,8 +60,13 @@ const ThreadItem: React.FC<{
     }
   };
 
+  // State for storing threads
   const [threads, setThreads] = useState<Thread[]>([]);
 
+  /**
+   * Handles the confirmation and deletion of the thread.
+   * Deletes the thread and its responses recursively.
+   */
   const handleConfirmDelete = async () => {
     const deleteThreadAndResponses = async (threadToDelete: Thread) => {
       if (threadToDelete.responses && threadToDelete.responses.length > 0) {
@@ -97,6 +119,7 @@ const ThreadItem: React.FC<{
     });
   };
 
+  // Format the date from the thread
   const formattedDate = new Date(thread.date);
 
   return (

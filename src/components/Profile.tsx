@@ -6,11 +6,13 @@ import Users from "./Users";
 import SurveyResponses from "./SurveyResponses";
 import { useNavigate } from "react-router-dom";
 
+// Enum defining user roles
 enum Role {
   UserProfile = 1,
   Admin = 2,
 }
 
+// Interface for survey response data
 interface SurveyResponse {
   id: number;
   satisfaction: number;
@@ -20,6 +22,9 @@ interface SurveyResponse {
   user_id: string;
 }
 
+/**
+ * Profile component for displaying user information, surveys, and admin features.
+ */
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
@@ -27,6 +32,7 @@ const Profile: React.FC = () => {
   const [role, setRole] = useState<Role>(Role.UserProfile);
   const [surveyData, setSurveyData] = useState<SurveyResponse[]>([]);
 
+  // Fetch survey data from the server on component mount
   useEffect(() => {
     axios
       .get("http://localhost:80/api/getSurveys.php")
@@ -42,11 +48,13 @@ const Profile: React.FC = () => {
       });
   }, []);
 
+  // Fetch user information from sessionStorage on component mount
   useEffect(() => {
     const storedEmail = sessionStorage.getItem("email");
     const storedId = sessionStorage.getItem("id");
     const storedRoleId = sessionStorage.getItem("role_id");
 
+    // Redirect to the login page if user information is not found in sessionStorage
     if (!storedEmail || !storedId || !storedRoleId) {
       navigate("/");
       return;
@@ -57,6 +65,7 @@ const Profile: React.FC = () => {
     setRole(parseInt(storedRoleId, 10) as Role);
   }, [navigate]);
 
+  // Handler for logging out the user
   const logoutHandler = () => {
     sessionStorage.removeItem("id");
     sessionStorage.removeItem("role_id");

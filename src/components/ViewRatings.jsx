@@ -24,8 +24,16 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import TextField from '@mui/material/TextField';
 import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
-import Snackbar from '@mui/material/Snackbar';
+import { toast } from "react-toastify";
 
+/**
+ * Comparator function for sorting an array of objects in descending order.
+ *
+ * @param {Object} a - The first object for comparison.
+ * @param {Object} b - The second object for comparison.
+ * @param {string} orderBy - The property to sort by.
+ * @returns {number} - Result of the comparison.
+ */
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
         return -1;
@@ -36,12 +44,26 @@ function descendingComparator(a, b, orderBy) {
     return 0;
 }
 
+/**
+ * Gets the comparator function based on the order and orderBy parameters.
+ *
+ * @param {string} order - The sorting order ('asc' or 'desc').
+ * @param {string} orderBy - The property to sort by.
+ * @returns {Function} - Comparator function.
+ */
 function getComparator(order, orderBy) {
     return order === 'desc'
         ? (a, b) => descendingComparator(a, b, orderBy)
         : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
+/**
+ * Stabilizes the sorting of an array by preserving the original order of equal elements.
+ *
+ * @param {Array} array - The array to stabilize.
+ * @param {Function} comparator - The comparator function.
+ * @returns {Array} - The stabilized array.
+ */
 function stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
@@ -105,6 +127,12 @@ const headCells = [
     },
 ];
 
+/**
+ * Defines the head cells for the table, including sorting functionality.
+ *
+ * @param {Object} props - The properties passed to the component.
+ * @returns {JSX.Element} - The rendered component.
+ */
 function EnhancedTableHead(props) {
     const { order, orderBy, onRequestSort } = props;
     const createSortHandler = (property) => (event) => {
@@ -141,6 +169,11 @@ function EnhancedTableHead(props) {
     );
 }
 
+/**
+ * Prop types for the EnhancedTableHead component.
+ *
+ * @type {Object}
+ */
 EnhancedTableHead.propTypes = {
     onRequestSort: PropTypes.func.isRequired,
     order: PropTypes.oneOf(['asc', 'desc']).isRequired,
@@ -148,6 +181,12 @@ EnhancedTableHead.propTypes = {
     rowCount: PropTypes.number.isRequired,
 };
 
+/**
+ * Toolbar component for the table, including a search input.
+ *
+ * @param {Object} props - The properties passed to the component.
+ * @returns {JSX.Element} - The rendered component.
+ */
 function EnhancedTableToolbar({ onRequestSearch }) {
     const handleSearch = (event) => {
         onRequestSearch(event.target.value);
@@ -168,8 +207,19 @@ function EnhancedTableToolbar({ onRequestSearch }) {
     );
 }
 
+/**
+ * Prop types for the EnhancedTableToolbar component.
+ *
+ * @type {Object}
+ */
 EnhancedTableToolbar.propTypes = {};
 
+/**
+ * React component for displaying and managing course ratings.
+ *
+ * @component
+ * @returns {JSX.Element} - The rendered component.
+ */
 const ViewRatings = () => {
     const navigate = useNavigate();
     const [order, setOrder] = React.useState('asc');
@@ -179,47 +229,67 @@ const ViewRatings = () => {
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [ratingData, setRatingData] = useState([]);
-    const [open, setOpen] = useState(false);
-    const [message, setMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState([]);
 
+    /**
+     * Effect hook to check if the user is authenticated. Redirects to the login page if not.
+     */
     useEffect(() => {
         if (!sessionStorage.getItem('id')) {
             navigate('/');
         }
     }, []);
 
+    /**
+     * Effect hook to fetch ratings data on component mount.
+     */
     useEffect(() => {
         getRatings();
     }, []);
 
+    /**
+     * Fetches course ratings data from the API and sets the state accordingly.
+     */
     const getRatings = () => {
         axios.get('http://localhost:80/api/getRatings.php').then((res) => {
             if (res.data.status === 1) {
                 setRatingData(res.data.data.reverse());
                 setFilteredData(res.data.data.reverse());
+
+                // Display success toast
+                toast.success('Course ratings fetched successfully!', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
             } else {
-                setMessage('Invalid Login Credentials');
-                setOpen(true);
+                // Display error toast
+                toast.error('Failed to fetch course ratings', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
             }
         });
     };
 
-    const handleClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpen(false);
-    };
-
+    /**
+     * Handles the request to sort the table based on a specific property.
+     *
+     * @param {Event} event - The event that triggered the sorting request.
+     * @param {string} property - The property to sort by.
+     */
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
 
+    /**
+     * Handles the click event on a table row, selecting or deselecting it.
+     *
+     * @param {Event} event - The event that triggered the click.
+     * @param {number} id - The ID of the clicked row.
+     */
     const handleClick = (event, id) => {
         if (id === selected) {
             setSelected(-1);
@@ -228,19 +298,40 @@ const ViewRatings = () => {
         }
     };
 
+    /**
+     * Handles the change in the current page when paginating through the table.
+     *
+     * @param {Event} event - The event that triggered the page change.
+     * @param {number} newPage - The new page number.
+     */
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
 
+    /**
+     * Handles the change in the number of rows per page.
+     *
+     * @param {Event} event - The event that triggered the change in rows per page.
+     */
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
 
+    /**
+     * Handles the change in dense padding for table rows.
+     *
+     * @param {Event} event - The event that triggered the change in dense padding.
+     */
     const handleChangeDense = (event) => {
         setDense(event.target.checked);
     };
 
+    /**
+     * Handles the edit action for a selected row, navigating to the edit page.
+     *
+     * @param {Event} event - The event that triggered the edit action.
+     */
     const handleEdit = (event) => {
         if (
             parseInt(sessionStorage.getItem('role_id')) === 2 ||
@@ -255,11 +346,19 @@ const ViewRatings = () => {
                 state: ratingData.find((rating) => rating.id === selected),
             });
         } else {
-            setMessage('Cannot Edit this rating');
-            setOpen(true);
+            // Display error toast
+            toast.error('Cannot edit this rating', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 3000,
+            });
         }
     };
 
+    /**
+     * Handles the delete action for a selected row, sending a request to delete the rating.
+     *
+     * @param {Event} event - The event that triggered the delete action.
+     */
     const handleDelete = (event) => {
         if (
             parseInt(sessionStorage.getItem('role_id')) === 2 ||
@@ -272,22 +371,42 @@ const ViewRatings = () => {
         ) {
             axios.delete(`http://localhost:80/api/deleteRating.php/${selected}`).then((res) => {
                 if (res.data.status) {
-                    setMessage('Deleted Rating');
-                    setOpen(true);
+                    // Display success toast
+                    toast.success('Deleted Rating', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 3000,
+                    });
                     getRatings();
                 } else {
-                    setMessage('Failed to delete Rating');
-                    setOpen(true);
+                    // Display error toast for failed deletion
+                    toast.error('Failed to delete Rating', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 3000,
+                    });
                 }
             });
         } else {
-            setMessage('Cannot Delete this rating');
-            setOpen(true);
+            // Display error toast for unauthorized deletion
+            toast.error('Cannot Delete this rating', {
+                position: toast.POSITION.TOP_RIGHT,
+                autoClose: 3000,
+            });
         }
     };
 
+    /**
+     * Checks if a row is selected based on its ID.
+     *
+     * @param {number} id - The ID of the row to check.
+     * @returns {boolean} - True if the row is selected, otherwise false.
+     */
     const isSelected = (id) => selected === id;
 
+    /**
+     * Handles the search action, filtering the table data based on the search term.
+     *
+     * @param {string} searchTerm - The term to search for.
+     */
     const handleSearch = (searchTerm) => {
         setSearchTerm(searchTerm);
 
@@ -300,8 +419,14 @@ const ViewRatings = () => {
         setFilteredData(filtered);
     };
 
+    /**
+     * Determines the data to display in the table, either the filtered data or all data.
+     */
     const rowsToDisplay = searchTerm ? filteredData : ratingData;
 
+    /**
+     * Calculates the number of empty rows to add to the table to maintain consistent height.
+     */
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rowsToDisplay.length) : 0;
 
@@ -404,12 +529,6 @@ const ViewRatings = () => {
             <FormControlLabel
                 control={<Switch checked={dense} onChange={handleChangeDense} />}
                 label="Dense padding"
-            />
-            <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                message={message}
             />
         </Box>
     );

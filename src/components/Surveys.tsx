@@ -17,12 +17,23 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Interface for form data
+interface FormData {
+  satisfaction: string;
+  improvements: string;
+  comments: string;
+  anonymous: boolean;
+}
+
+/**
+ * Surveys component for collecting feedback through a form.
+ */
 const Surveys: React.FC = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     satisfaction: "",
     improvements: "",
     comments: "",
@@ -30,6 +41,7 @@ const Surveys: React.FC = () => {
   });
   const [invalidFields, setInvalidFields] = useState<string[]>([]);
 
+  // Handle change in select input
   const handleSelectChange = (e: SelectChangeEvent<string>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -38,6 +50,7 @@ const Surveys: React.FC = () => {
     }));
   };
 
+  // Handle change in textarea input
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -46,6 +59,7 @@ const Surveys: React.FC = () => {
     }));
   };
 
+  // Handle change in checkbox input
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setFormData((prevData) => ({
@@ -54,14 +68,18 @@ const Surveys: React.FC = () => {
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Define required fields for the form
     const requiredFields = ["satisfaction", "improvements"];
+    // Find missing required fields
     const missingFields = requiredFields.filter(
       (field) => !formData[field as keyof typeof formData]
     );
 
+    // If there are missing fields, display an error toast and return
     if (missingFields.length > 0) {
       setInvalidFields(missingFields);
       toast.error("Please fill in all required fields.", {
@@ -73,6 +91,7 @@ const Surveys: React.FC = () => {
 
     setInvalidFields([]);
 
+    // Prepare the request body
     const body = {
       satisfaction: formData.satisfaction,
       improvements: formData.improvements,
@@ -82,12 +101,14 @@ const Surveys: React.FC = () => {
     };
 
     try {
+      // Send a POST request to the server to add the survey response
       const response = await axios.post(
         "http://localhost:80/api/addSurveyResponse.php",
         body
       );
 
       if (response.data && response.data.status) {
+        // Display a success toast and reset the form data
         toast.success("Survey response submitted successfully!", {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
@@ -100,6 +121,7 @@ const Surveys: React.FC = () => {
           anonymous: false,
         });
       } else {
+        // Display an error toast with the server response message
         const errorMessage = response.data?.message || "Unknown error";
         toast.error(`Error: ${errorMessage}`, {
           position: toast.POSITION.TOP_RIGHT,
@@ -107,6 +129,7 @@ const Surveys: React.FC = () => {
         });
       }
     } catch (error) {
+      // Handle errors during the request and display an error toast
       if (error instanceof Error) {
         toast.error(`An error occurred: ${error.message || "Unknown error"}`, {
           position: toast.POSITION.TOP_RIGHT,
@@ -121,6 +144,7 @@ const Surveys: React.FC = () => {
     }
   };
 
+  // Check if the user is authenticated, otherwise, redirect to the home page
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");
@@ -130,14 +154,20 @@ const Surveys: React.FC = () => {
   return (
     <Container maxWidth="md">
       <Box mt={4} textAlign="center">
+        {/* Typography for the section heading */}
         <Typography variant="h4" gutterBottom>
           Surveys
         </Typography>
+
+        {/* Paper component for styling the form */}
         <Paper elevation={3} style={{ padding: "20px", marginBottom: "20px" }}>
+          {/* Form for collecting survey responses */}
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
+                {/* FormControl for the satisfaction rating */}
                 <FormControl fullWidth>
+                  {/* InputLabel for the satisfaction rating */}
                   <InputLabel
                     id="satisfaction-label"
                     className={
@@ -146,6 +176,8 @@ const Surveys: React.FC = () => {
                   >
                     How satisfied are you with our web app overall?
                   </InputLabel>
+
+                  {/* Select input for the satisfaction rating */}
                   <Select
                     labelId="satisfaction-label"
                     name="satisfaction"
@@ -170,6 +202,7 @@ const Surveys: React.FC = () => {
               </Grid>
 
               <Grid item xs={12}>
+                {/* TextareaAutosize for providing improvement suggestions */}
                 <TextareaAutosize
                   name="improvements"
                   onChange={handleTextareaChange}
@@ -188,6 +221,7 @@ const Surveys: React.FC = () => {
               </Grid>
 
               <Grid item xs={12}>
+                {/* TextareaAutosize for additional comments or suggestions */}
                 <TextareaAutosize
                   name="comments"
                   onChange={handleTextareaChange}
@@ -203,6 +237,7 @@ const Surveys: React.FC = () => {
               </Grid>
 
               <Grid item xs={12}>
+                {/* FormControlLabel for the anonymous checkbox */}
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -220,6 +255,7 @@ const Surveys: React.FC = () => {
               </Grid>
 
               <Grid item xs={12}>
+                {/* Button for submitting the survey response */}
                 <Button type="submit" variant="contained" color="primary">
                   Submit
                 </Button>

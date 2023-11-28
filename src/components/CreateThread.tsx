@@ -12,6 +12,9 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 
+/**
+ * CreateThread component for creating or editing forum threads.
+ */
 const CreateThread: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -24,6 +27,10 @@ const CreateThread: React.FC = () => {
   });
   const isReply = parentId !== null;
 
+  /**
+   * Handles the change event of the textarea, updating the content in the state.
+   * @param e - The change event.
+   */
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
@@ -37,6 +44,9 @@ const CreateThread: React.FC = () => {
     }
   };
 
+  /**
+   * Displays a success toast message after successfully creating or updating a thread.
+   */
   const handleEditSuccessToast = () => {
     const actionMessage = isReply
       ? "replied to"
@@ -51,6 +61,10 @@ const CreateThread: React.FC = () => {
     navigate("/forums");
   };
 
+  /**
+   * Displays an error toast message if there is an issue creating or updating a thread.
+   * @param errorMessage - The error message to display.
+   */
   const handleEditErrorToast = (errorMessage: string) => {
     toast.error(`Error: ${errorMessage}`, {
       position: toast.POSITION.TOP_RIGHT,
@@ -58,6 +72,10 @@ const CreateThread: React.FC = () => {
     });
   };
 
+  /**
+   * Handles the form submission, creating or updating the thread accordingly.
+   * @param e - The form submission event.
+   */
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -133,6 +151,10 @@ const CreateThread: React.FC = () => {
     }
   };
 
+  /**
+   * Checks if the user is authenticated or if the component is in edit mode.
+   * If not, redirects to the login page.
+   */
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");

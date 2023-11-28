@@ -1,44 +1,69 @@
-import React, { useState } from 'react'
-import Button from '@mui/material/Button'
+import React, { useState } from "react";
+import Button from "@mui/material/Button";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from '@mui/material/Menu'
-import MenuIcon from '@mui/icons-material/Menu'
-import MenuItem from '@mui/material/MenuItem'
+import Menu from "@mui/material/Menu";
+import MenuIcon from "@mui/icons-material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Container from "@mui/material/Container";
 import RateReviewIcon from "@mui/icons-material/RateReview";
-import { useTheme } from '@mui/material/styles';
-
+import { useTheme } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 
-const pages = ["Rate A Course", "View Ratings", "Surveys", "Forums", "Profile"];
+const pages: string[] = [
+  "Rate A Course",
+  "View Ratings",
+  "Surveys",
+  "Forums",
+  "Profile",
+];
 
-const Navbar = () => {
+/**
+ * Navbar component for the application.
+ * This component represents the navigation bar with responsive design.
+ * @component
+ * @returns {JSX.Element} The rendered JSX element of the Navbar.
+ */
+const Navbar: React.FC = () => {
   const theme = useTheme();
-  const [anchorElNav, setAnchorElNav] = useState(null)
 
-  const handleOpenNavMenu = (event) => {
+  /**
+   * State to manage the anchor element for the navigation menu.
+   * @type {HTMLElement | null}
+   */
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+
+  /**
+   * Handles opening the navigation menu.
+   * @param {React.MouseEvent<HTMLButtonElement>} event - The click event.
+   */
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElNav(event.currentTarget);
   };
 
+  /**
+   * Handles closing the navigation menu.
+   */
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
 
-
   return (
     <AppBar position="static" sx={{ margin: 0 }}>
-      <Container maxWidth="xl" sx={{
-        margin: 0,
-        padding: 0,
-        width: "100%",
-        [theme.breakpoints.up('lg')]: {
-          maxWidth: '100%',
-        }
-      }}>
+      <Container
+        maxWidth="xl"
+        sx={{
+          margin: 0,
+          padding: 0,
+          width: "100%",
+          [theme.breakpoints.up("lg")]: {
+            maxWidth: "100%",
+          },
+        }}
+      >
         <Toolbar disableGutters>
           <RateReviewIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography
@@ -122,8 +147,8 @@ const Navbar = () => {
             Rate My Course
           </Typography>
 
-          <Box sx={{ display: { xs: "none", md: "flex" }, marginLeft: 'auto' }}>
-            {pages.map((page) => (
+          <Box sx={{ display: { xs: "none", md: "flex" }, marginLeft: "auto" }}>
+            {pages.map((page: string) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
@@ -131,7 +156,7 @@ const Navbar = () => {
               >
                 <Link
                   style={{ textDecoration: "none", color: "white" }}
-                  to={`/${page.split(' ').join('')}`}
+                  to={`/${page.split(" ").join("")}`}
                 >
                   {page}
                 </Link>

@@ -11,6 +11,7 @@ import {
   TablePagination,
 } from "@mui/material";
 
+// Interface for survey response data
 interface SurveyResponse {
   id: number;
   satisfaction: number;
@@ -20,18 +21,25 @@ interface SurveyResponse {
   user_id: string;
 }
 
+// Props interface for SurveyResponses component
 interface SurveyResponsesProps {
   surveyData: SurveyResponse[];
 }
 
+/**
+ * SurveyResponses component for displaying survey responses in a table format.
+ * @param {SurveyResponsesProps} props - The props for the component.
+ */
 const SurveyResponses: React.FC<SurveyResponsesProps> = ({ surveyData }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  // Handle change in table page
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
+  // Handle change in number of rows per page
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -39,6 +47,7 @@ const SurveyResponses: React.FC<SurveyResponsesProps> = ({ surveyData }) => {
     setPage(0);
   };
 
+  // Slice the survey data based on the current page and rows per page
   const slicedSurveyData = surveyData.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage

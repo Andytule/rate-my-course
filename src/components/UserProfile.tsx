@@ -19,6 +19,18 @@ interface UserProfileProps {
   logoutHandler: () => void;
 }
 
+/**
+ * Represents the user profile component.
+ *
+ * @component
+ *
+ * @param {Object} props - The component's properties.
+ * @param {string | null} props.email - The user's email.
+ * @param {number} props.role - The user's role (1 for regular user, 2 for admin).
+ * @param {Function} props.logoutHandler - Callback function for handling user logout.
+ *
+ * @returns {JSX.Element} The rendered JSX element for the UserProfile component.
+ */
 const UserProfile: React.FC<UserProfileProps> = ({
   email,
   role,
@@ -32,7 +44,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
             <AccountCircleIcon
               sx={{
                 fontSize: 64,
-                color: role === 2 ? "primary.main" : "primary.main", // Assuming Admin role is 2
+                color: role === 2 ? "primary.main" : "primary.main",
               }}
             />
           </Grid>

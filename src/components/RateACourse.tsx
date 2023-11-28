@@ -16,6 +16,10 @@ import { toast } from "react-toastify";
 import { Container } from "@mui/material";
 import { Paper } from "@mui/material";
 
+/**
+ * Labels for the different rating values.
+ * @type {Object.<number, string>}
+ */
 const labels = {
   0.5: "Useless",
   1: "Useless+",
@@ -29,8 +33,29 @@ const labels = {
   5: "Excellent+",
 };
 
+/**
+ * Functional component for rating a course.
+ * @component
+ */
 const RateACourse = () => {
+  /**
+   * Hook to navigate between pages.
+   * @type {function}
+   */
   const navigate = useNavigate();
+
+  /**
+   * State to manage the hovered rating, form details, and rating labels.
+   * @type {Object}
+   * @property {string} courseName - The name of the course.
+   * @property {string} courseCode - The code of the course.
+   * @property {string} term - The term of the course.
+   * @property {string} level - The level of the course.
+   * @property {number | null} rating - The rating given to the course.
+   * @property {string} schoolName - The name of the school.
+   * @property {string} comments - Comments about the course.
+   * @property {string} tipsAndTricks - Tips and tricks for the course.
+   */
   const [hover, setHover] = React.useState(-1);
   const [details, setDetails] = useState({
     courseName: "",
@@ -43,12 +68,23 @@ const RateACourse = () => {
     tipsAndTricks: "",
   });
 
+  /**
+   * Ensure the user is logged in; otherwise, redirect to the homepage.
+   * @function
+   * @name useEffect
+   */
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");
     }
   }, [navigate]);
 
+  /**
+   * Validate whether all required form fields are filled.
+   * @function
+   * @name isFormValid
+   * @returns {boolean} - True if the form is valid, false otherwise.
+   */
   const isFormValid = () => {
     return (
       details.courseName &&
@@ -62,6 +98,14 @@ const RateACourse = () => {
     );
   };
 
+  /**
+   * Submit the course rating when the form is valid.
+   * Display a success toast when the review is submitted successfully.
+   * Display an error toast when the form is not valid.
+   * Reset form details after successful submission.
+   * @function
+   * @name addCourseRating
+   */
   const addCourseRating = () => {
     if (isFormValid()) {
       const body = {
@@ -94,11 +138,23 @@ const RateACourse = () => {
     }
   };
 
+  /**
+   * Handle form submission.
+   * @function
+   * @name submitHandler
+   * @param {Object} e - The form event.
+   */
   const submitHandler = (e: React.FormEvent) => {
     e.preventDefault();
     addCourseRating();
   };
 
+  /**
+   * Render the RateACourse component.
+   * @function
+   * @name render
+   * @returns {ReactElement} - JSX element representing the RateACourse component.
+   */
   return (
     <Container>
       <Box mt={2} textAlign="center">

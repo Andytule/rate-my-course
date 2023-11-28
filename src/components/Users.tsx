@@ -18,13 +18,19 @@ interface User {
   role_id: number;
 }
 
+/**
+ * Represents the Users component that displays a list of users.
+ *
+ * @component
+ *
+ * @returns {JSX.Element} The rendered JSX element for the Users component.
+ */
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    // Fetch data from getUsers.php API
     const fetchData = async () => {
       try {
         const response = await fetch("http://localhost:80/api/getUsers.php");
@@ -41,12 +47,23 @@ const Users: React.FC = () => {
     };
 
     fetchData();
-  }, []); // Run the effect only once on component mount
+  }, []);
 
+  /**
+   * Handles a change in the current page in pagination.
+   *
+   * @param {unknown} event - The event object.
+   * @param {number} newPage - The new page number.
+   */
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
+  /**
+   * Handles a change in the number of rows per page in pagination.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The event object.
+   */
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -54,6 +71,7 @@ const Users: React.FC = () => {
     setPage(0);
   };
 
+  // Slice the users array based on the current page and rows per page
   const slicedUsers = users.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
