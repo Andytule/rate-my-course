@@ -153,7 +153,7 @@ const Surveys: React.FC = () => {
   // Check if the user is authenticated, otherwise, redirect to the home page
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
-      navigate("/");
+      navigate("/rate-my-course");
     }
   }, [navigate]);
 

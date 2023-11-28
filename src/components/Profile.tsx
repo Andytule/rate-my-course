@@ -62,7 +62,7 @@ const Profile: React.FC = () => {
 
     // Redirect to the login page if user information is not found in sessionStorage
     if (!storedEmail || !storedId || !storedRoleId) {
-      navigate("/");
+      navigate("/rate-my-course");
       return;
     }
 
@@ -76,7 +76,7 @@ const Profile: React.FC = () => {
     sessionStorage.removeItem("id");
     sessionStorage.removeItem("role_id");
     sessionStorage.removeItem("email");
-    navigate("/");
+    navigate("/rate-my-course");
   };
 
   return (

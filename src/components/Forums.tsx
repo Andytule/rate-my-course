@@ -23,7 +23,7 @@ const Forums: React.FC = () => {
    */
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
-      navigate("/");
+      navigate("/rate-my-course");
     } else {
       axios
         .get(`${apiBaseUrl}/getThreads.php`)

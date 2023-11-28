@@ -167,7 +167,7 @@ const CreateThread: React.FC = () => {
    */
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
-      navigate("/");
+      navigate("/rate-my-course");
     } else if (state && state.threadId) {
       setIsEditMode(true);
 

@@ -85,7 +85,7 @@ const EditACourse: React.FC = () => {
    */
   useEffect(() => {
     if (!sessionStorage.getItem("id")) {
-      navigate("/");
+      navigate("/rate-my-course");
     }
   }, [navigate]);
 
