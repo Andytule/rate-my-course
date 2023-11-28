@@ -38,8 +38,13 @@ const Profile: React.FC = () => {
     axios
       .get(`${apiBaseUrl}/getSurveys.php`)
       .then((response) => {
-        if (response.data.status === 1) {
-          setSurveyData(response.data.data);
+        const responseData = response.data;
+        const startIndex = responseData.indexOf("{");
+        const endIndex = responseData.lastIndexOf("}");
+        const jsonString = responseData.substring(startIndex, endIndex + 1);
+        const parsedData = JSON.parse(jsonString);
+        if (parsedData.status === 1) {
+          setSurveyData(parsedData.data);
         } else {
           console.error("Failed to retrieve survey data.");
         }

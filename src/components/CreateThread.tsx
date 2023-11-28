@@ -49,11 +49,12 @@ const CreateThread: React.FC = () => {
    * Displays a success toast message after successfully creating or updating a thread.
    */
   const handleEditSuccessToast = () => {
-    const actionMessage = isReply
-      ? "replied to"
-      : isEditMode
+    const actionMessage = isEditMode
       ? "updated"
+      : isReply
+      ? "replied to"
       : "created";
+
     toast.success(`Thread ${actionMessage} successfully!`, {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000,
@@ -100,18 +101,24 @@ const CreateThread: React.FC = () => {
           `${apiBaseUrl}/createThread.php`,
           body
         );
+        const responseData = response.data;
 
-        if (response.data && response.data.status) {
+        const startIndex = responseData.indexOf("{");
+        const endIndex = responseData.lastIndexOf("}");
+        const jsonString = responseData.substring(startIndex, endIndex + 1);
+        const parsedData = JSON.parse(jsonString);
+
+        if (parsedData.status) {
           handleEditSuccessToast();
           setThreadData({
             content: "",
             parent_id: parentId,
           });
         } else {
-          const errorMessage = response.data?.message || "Unknown error";
+          const errorMessage = parsedData.message || "Unknown error";
           handleEditErrorToast(errorMessage);
         }
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Error) {
           handleEditErrorToast(
             `An error occurred: ${error.message || "Unknown error"}`
@@ -128,16 +135,21 @@ const CreateThread: React.FC = () => {
 
       try {
         const response = await axios.post(`${apiBaseUrl}/editThread.php`, body);
+        const responseData = response.data;
 
-        if (response.data && response.data.status) {
+        const startIndex = responseData.indexOf("{");
+        const endIndex = responseData.lastIndexOf("}");
+        const jsonString = responseData.substring(startIndex, endIndex + 1);
+        const parsedData = JSON.parse(jsonString);
+        if (parsedData.status) {
           handleEditSuccessToast();
           setIsEditMode(false);
           setEditContent("");
         } else {
-          const errorMessage = response.data?.message || "Unknown error";
+          const errorMessage = parsedData.message || "Unknown error";
           handleEditErrorToast(errorMessage);
         }
-      } catch (error) {
+      } catch (error: any) {
         if (error instanceof Error) {
           handleEditErrorToast(
             `An error occurred: ${error.message || "Unknown error"}`
@@ -162,7 +174,12 @@ const CreateThread: React.FC = () => {
       axios
         .get(`${apiBaseUrl}/getThread.php?id=${state.threadId}`)
         .then((response) => {
-          setEditContent(response.data.data.content);
+          const responseData = response.data;
+          const startIndex = responseData.indexOf("{");
+          const endIndex = responseData.lastIndexOf("}");
+          const jsonString = responseData.substring(startIndex, endIndex + 1);
+          const parsedData = JSON.parse(jsonString);
+          setEditContent(parsedData.data.content);
         })
         .catch((error) => {
           console.error("Error fetching thread content:", error);

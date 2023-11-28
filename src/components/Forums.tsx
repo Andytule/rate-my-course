@@ -6,6 +6,7 @@ import { Thread } from "../types/types";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import apiBaseUrl from "apiConfig";
+import axios from "axios";
 
 /**
  * Forums component for displaying forum threads and managing thread sorting.
@@ -24,18 +25,22 @@ const Forums: React.FC = () => {
     if (!sessionStorage.getItem("id")) {
       navigate("/");
     } else {
-      fetch(`${apiBaseUrl}/getThreads.php`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === 1) {
-            const threadHierarchy = buildHierarchy(data.data);
+      axios
+        .get(`${apiBaseUrl}/getThreads.php`)
+        .then((response) => {
+          const startIndex = response.data.indexOf("{");
+          const endIndex = response.data.lastIndexOf("}");
+          const jsonString = response.data.substring(startIndex, endIndex + 1);
+          const parsedData = JSON.parse(jsonString);
+          if (parsedData.status === 1) {
+            const threadHierarchy = buildHierarchy(parsedData.data);
             const sortedThreads = [...threadHierarchy].sort(
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
             );
             setThreads(sortedThreads);
             setActiveSort("newest");
           } else {
-            console.error("Error fetching forum threads:", data.message);
+            console.error("Error fetching forum threads:", parsedData.message);
           }
         })
         .catch((error) => {
@@ -101,11 +106,32 @@ const Forums: React.FC = () => {
    * Handles the deletion of a thread and updates the state.
    * @param deletedThreadId - The ID of the deleted thread.
    */
-  const handleDeleteThread = (deletedThreadId: number) => {
-    const updatedThreads = threads.filter(
-      (thread) => thread.id !== deletedThreadId
-    );
-    setThreads(updatedThreads);
+  const handleDeleteThread = async (deletedThreadId: number) => {
+    try {
+      // Send a request to delete the thread
+      await axios.post(`${apiBaseUrl}/deleteThread.php`, {
+        id: deletedThreadId,
+      });
+
+      // Fetch updated threads from the server
+      const response = await axios.get(`${apiBaseUrl}/getThreads.php`);
+      const startIndex = response.data.indexOf("{");
+      const endIndex = response.data.lastIndexOf("}");
+      const jsonString = response.data.substring(startIndex, endIndex + 1);
+      const parsedData = JSON.parse(jsonString);
+
+      if (parsedData.status === 1) {
+        const threadHierarchy = buildHierarchy(parsedData.data);
+        const sortedThreads = [...threadHierarchy].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        setThreads(sortedThreads);
+      } else {
+        console.error("Error fetching forum threads:", parsedData.message);
+      }
+    } catch (error) {
+      console.error("Error deleting thread:", error);
+    }
   };
 
   /**

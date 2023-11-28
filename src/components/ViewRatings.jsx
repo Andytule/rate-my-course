@@ -254,20 +254,41 @@ const ViewRatings = () => {
      */
     const getRatings = () => {
         axios.get(`${apiBaseUrl}/getRatings.php`).then((res) => {
-            if (res.data.status === 1) {
-                setRatingData(res.data.data.reverse());
-                setFilteredData(res.data.data.reverse());
+            const startIndex = res.data.indexOf("{");
+            const endIndex = res.data.lastIndexOf("}");
+            const jsonString = res.data.substring(startIndex, endIndex + 1);
 
-                // Display success toast
-                toast.success('Course ratings fetched successfully!', {
-                    position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 3000,
-                });
+            if (startIndex !== -1) {
+                try {
+                    const parsedData = JSON.parse(jsonString);
+
+                    if (parsedData.status === 1) {
+
+                        setRatingData(parsedData.data.reverse());
+                        setFilteredData(parsedData.data.reverse());
+
+                        // Display success toast
+                        toast.success('Course ratings fetched successfully!', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    } else {
+                        // Display error toast
+                        toast.error('Failed to fetch course ratings', {
+                            position: toast.POSITION.TOP_RIGHT,
+                            autoClose: 3000,
+                        });
+                    }
+                } catch (error) {
+                    toast.error('Failed to fetch course ratings', {
+                        position: toast.POSITION.TOP_RIGHT,
+                        autoClose: 3000,
+                    });
+                }
             } else {
-                // Display error toast
-                toast.error('Failed to fetch course ratings', {
+                toast.error("Invalid server response format", {
                     position: toast.POSITION.TOP_RIGHT,
-                    autoClose: 3000,
+                    autoClose: 5000,
                 });
             }
         });
@@ -360,7 +381,7 @@ const ViewRatings = () => {
      *
      * @param {Event} event - The event that triggered the delete action.
      */
-    const handleDelete = (event) => {
+    const handleDelete = async (event) => {
         if (
             parseInt(sessionStorage.getItem('role_id')) === 2 ||
             (selected !== -1 &&
@@ -370,22 +391,29 @@ const ViewRatings = () => {
                         rating.id === selected
                 ))
         ) {
-            axios.delete(`${apiBaseUrl}/deleteRating.php/${selected}`).then((res) => {
-                if (res.data.status) {
-                    // Display success toast
-                    toast.success('Deleted Rating', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 3000,
-                    });
-                    getRatings();
-                } else {
-                    // Display error toast for failed deletion
-                    toast.error('Failed to delete Rating', {
-                        position: toast.POSITION.TOP_RIGHT,
-                        autoClose: 3000,
-                    });
-                }
+            const response = await axios.post(`${apiBaseUrl}/deleteRating.php/`, {
+                id: selected
             });
+
+            const startIndex = response.data.indexOf("{");
+            const endIndex = response.data.lastIndexOf("}");
+            const jsonString = response.data.substring(startIndex, endIndex + 1);
+            const parsedData = JSON.parse(jsonString);
+
+            if (parsedData.status) {
+                // Display success toast
+                toast.success('Deleted Rating', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
+                getRatings();
+            } else {
+                // Display error toast for failed deletion
+                toast.error('Failed to delete Rating', {
+                    position: toast.POSITION.TOP_RIGHT,
+                    autoClose: 3000,
+                });
+            }
         } else {
             // Display error toast for unauthorized deletion
             toast.error('Cannot Delete this rating', {
@@ -394,6 +422,7 @@ const ViewRatings = () => {
             });
         }
     };
+
 
     /**
      * Checks if a row is selected based on its ID.

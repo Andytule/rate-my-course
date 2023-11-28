@@ -34,19 +34,27 @@ const Login: React.FC = () => {
   /**
    * Handles the user login process.
    */
-  const loginHandler = () => {
+  const loginHandler = async () => {
     if (details.email && details.password) {
-      axios.post(`${apiBaseUrl}/login.php`, details).then((res) => {
-        if (res.data.status) {
-          sessionStorage.setItem("id", res.data?.user?.id);
-          sessionStorage.setItem("role_id", res.data?.user?.role_id);
-          sessionStorage.setItem("email", res.data?.user?.email);
+      try {
+        const res = await axios.post(`${apiBaseUrl}/login.php`, details);
+        const startIndex = res.data.indexOf("{");
+        const endIndex = res.data.lastIndexOf("}");
+        const jsonString = res.data.substring(startIndex, endIndex + 1);
+        const parsedData = JSON.parse(jsonString);
+        if (parsedData.status) {
+          sessionStorage.setItem("id", parsedData?.user?.id);
+          sessionStorage.setItem("role_id", parsedData?.user?.role_id);
+          sessionStorage.setItem("email", parsedData?.user?.email);
           notifySuccess("Login Successful");
           navigate("/RateACourse");
         } else {
           notifyError("Invalid Login Credentials");
         }
-      });
+      } catch (error) {
+        console.error("Error during login:", error);
+        notifyError("An error occurred during login");
+      }
     } else {
       notifyError("Invalid Login Credentials");
     }

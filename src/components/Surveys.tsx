@@ -108,7 +108,12 @@ const Surveys: React.FC = () => {
         body
       );
 
-      if (response.data && response.data.status) {
+      const startIndex = response.data.indexOf("{");
+      const endIndex = response.data.lastIndexOf("}");
+      const jsonString = response.data.substring(startIndex, endIndex + 1);
+      const parsedData = JSON.parse(jsonString);
+
+      if (parsedData && parsedData.status) {
         // Display a success toast and reset the form data
         toast.success("Survey response submitted successfully!", {
           position: toast.POSITION.TOP_RIGHT,
@@ -123,7 +128,7 @@ const Surveys: React.FC = () => {
         });
       } else {
         // Display an error toast with the server response message
-        const errorMessage = response.data?.message || "Unknown error";
+        const errorMessage = parsedData?.message || "Unknown error";
         toast.error(`Error: ${errorMessage}`, {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 5000,

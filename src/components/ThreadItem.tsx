@@ -55,7 +55,7 @@ const ThreadItem: React.FC<{
     if (
       isUserLoggedIn &&
       currentUserId !== null &&
-      parseInt(currentUserId) === thread.account
+      parseInt(currentUserId) == thread.account
     ) {
       navigate("/CreateThread", { state: { threadId: thread.id } });
     }
@@ -81,12 +81,18 @@ const ThreadItem: React.FC<{
           id: threadToDelete.id,
         });
 
-        if (response.data && response.data.status) {
+        const responseData = response.data;
+        const startIndex = responseData.indexOf("{");
+        const endIndex = responseData.lastIndexOf("}");
+        const jsonString = responseData.substring(startIndex, endIndex + 1);
+        const parsedData = JSON.parse(jsonString);
+
+        if (parsedData && parsedData.status) {
           if (onDelete) {
             onDelete(threadToDelete.id);
           }
         } else {
-          const errorMessage = response.data?.message || "Unknown error";
+          const errorMessage = parsedData?.message || "Unknown error";
           toast.error(`Error: ${errorMessage}`, {
             position: toast.POSITION.TOP_RIGHT,
             autoClose: 5000,
@@ -171,7 +177,11 @@ const ThreadItem: React.FC<{
       {thread.responses && thread.responses.length > 0 && (
         <List>
           {thread.responses.map((response) => (
-            <ThreadItem key={response.id} thread={response} />
+            <ThreadItem
+              key={response.id}
+              thread={response}
+              onDelete={onDelete}
+            />
           ))}
         </List>
       )}
@@ -184,14 +194,16 @@ const ThreadItem: React.FC<{
             </IconButton>
             {isUserLoggedIn &&
               currentUserId !== null &&
-              parseInt(currentUserId) === thread.account && (
+              parseInt(currentUserId) == thread.account && (
                 <IconButton onClick={handleEditClick}>
                   <EditIcon sx={{ color: isParent ? "white" : "inherit" }} />
                 </IconButton>
               )}
             {isUserLoggedIn &&
-              currentUserId !== null &&
-              parseInt(currentUserId) === thread.account && (
+              ((currentUserId !== null &&
+                parseInt(currentUserId) == thread.account) ||
+                (sessionStorage.getItem("role_id") !== null &&
+                  parseInt(sessionStorage.getItem("role_id")!) === 2)) && (
                 <IconButton onClick={handleConfirmDelete}>
                   <DeleteIcon sx={{ color: isParent ? "white" : "inherit" }} />
                 </IconButton>

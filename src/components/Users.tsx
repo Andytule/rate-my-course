@@ -11,6 +11,7 @@ import {
   TablePagination,
 } from "@mui/material";
 import apiBaseUrl from "apiConfig";
+import axios from "axios";
 
 interface User {
   id: number;
@@ -34,11 +35,14 @@ const Users: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}/getUsers.php`);
-        const data = await response.json();
+        const response = await axios.get(`${apiBaseUrl}/getUsers.php`);
+        const startIndex = response.data.indexOf("{");
+        const endIndex = response.data.lastIndexOf("}");
+        const jsonString = response.data.substring(startIndex, endIndex + 1);
+        const parsedData = JSON.parse(jsonString);
 
-        if (data.status === 1) {
-          setUsers(data.data);
+        if (parsedData.status === 1) {
+          setUsers(parsedData.data);
         } else {
           console.error("Failed to retrieve user data.");
         }

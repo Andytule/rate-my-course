@@ -137,7 +137,11 @@ const EditACourse: React.FC = () => {
       axios
         .post(`${apiBaseUrl}/updateRating.php`, body)
         .then((res) => {
-          if (res.data.status) {
+          const startIndex = res.data.indexOf("{");
+          const endIndex = res.data.lastIndexOf("}");
+          const jsonString = res.data.substring(startIndex, endIndex + 1);
+          const parsedData = JSON.parse(jsonString);
+          if (parsedData.status) {
             setDetails({
               courseName: "",
               courseCode: "",

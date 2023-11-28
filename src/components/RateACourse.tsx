@@ -16,6 +16,8 @@ import { toast } from "react-toastify";
 import { Container } from "@mui/material";
 import { Paper } from "@mui/material";
 import apiBaseUrl from "apiConfig";
+import { toast as toastify } from "react-toastify";
+type ToastType = typeof toastify;
 
 /**
  * Labels for the different rating values.
@@ -100,6 +102,16 @@ const RateACourse = () => {
   };
 
   /**
+   * Displays an error notification using the toast library.
+   * @param {string} message - The error message to be displayed.
+   */
+  const notifyError = (message: string) =>
+    toast.error(message, {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 5000,
+    });
+
+  /**
    * Submit the course rating when the form is valid.
    * Display a success toast when the review is submitted successfully.
    * Display an error toast when the form is not valid.
@@ -113,10 +125,32 @@ const RateACourse = () => {
         ...details,
         creator_id: sessionStorage.getItem("id"),
       };
-      axios.post(`${apiBaseUrl}/addReview.php`, body).then((res) => {
-        if (res.data.status) {
-          toast.success("Review submitted successfully!", {
-            position: toast.POSITION.TOP_RIGHT,
+
+      axios
+        .post(`${apiBaseUrl}/addReview.php`, body)
+        .then((res) => handleReviewResponse(res.data))
+        .catch((error) =>
+          notifyError(`An error occurred: ${error.message || "Unknown error"}`)
+        );
+    } else {
+      toast.error("Please fill in all required fields", {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const handleReviewResponse = (responseData: string) => {
+    const startIndex = responseData.indexOf("{");
+
+    if (startIndex !== -1) {
+      const jsonString = responseData.substring(startIndex);
+
+      try {
+        const parsedData = JSON.parse(jsonString);
+        if (parsedData.status) {
+          toastify.success("Review submitted successfully!", {
+            position: toastify.POSITION.TOP_RIGHT,
             autoClose: 3000,
           });
           setDetails({
@@ -129,12 +163,19 @@ const RateACourse = () => {
             comments: "",
             tipsAndTricks: "",
           });
+        } else {
+          (toastify.error as ToastType)("Invalid Review Submission");
         }
-      });
+      } catch (error) {
+        (toastify.error as ToastType)(
+          `An error occurred: ${(error as Error).message || "Unknown error"}`
+        );
+      }
     } else {
-      toast.error("Please fill in all required fields", {
-        position: toast.POSITION.TOP_RIGHT,
-        autoClose: 3000,
+      // If '{' character is not found, handle it as an error
+      toastify.error("Invalid server response format", {
+        position: toastify.POSITION.TOP_RIGHT,
+        autoClose: 5000,
       });
     }
   };
