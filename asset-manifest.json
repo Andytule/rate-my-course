@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/rate-my-course/static/css/main.3a99a755.css",
-    "main.js": "/rate-my-course/static/js/main.96dbe9b3.js",
+    "main.js": "/rate-my-course/static/js/main.6e3b36b5.js",
     "static/media/login-image.jpg": "/rate-my-course/static/media/login-image.7acf70eb4956b2415f2b.jpg",
     "index.html": "/rate-my-course/index.html",
     "main.3a99a755.css.map": "/rate-my-course/static/css/main.3a99a755.css.map",
-    "main.96dbe9b3.js.map": "/rate-my-course/static/js/main.96dbe9b3.js.map"
+    "main.6e3b36b5.js.map": "/rate-my-course/static/js/main.6e3b36b5.js.map"
   },
   "entrypoints": [
     "static/css/main.3a99a755.css",
-    "static/js/main.96dbe9b3.js"
+    "static/js/main.6e3b36b5.js"
   ]
 }
